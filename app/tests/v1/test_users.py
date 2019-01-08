@@ -26,7 +26,7 @@ class TestUser(BaseTest):
 
         self.assertEqual(res.status_code, 400)
         self.assertEqual(data['status'], 400)
-        self.assertEqual(data['error'], 'No data provided')
+        self.assertEqual(data['error'], 'Invalid data. Please fill all required fields')
 
     def test_signup_missing_fields(self):
         """ Test signup with missing fields in data sent """
@@ -36,12 +36,12 @@ class TestUser(BaseTest):
             'password' : 'asfsgsdg'
         }
 
-        res = self.client.post('/api/v1/register', json=json.dumps(user), headers={'Content-Type': 'application/json'})
+        res = self.client.post('/api/v1/register', json=user, headers={'Content-Type': 'application/json'})
         data = res.get_json()
 
         self.assertEqual(res.status_code, 400)
         self.assertEqual(data['status'], 400)
-        self.assertEqual(data['error'], 'Incomplete data. Please fill all required fields')
+        self.assertEqual(data['error'], 'Invalid data. Please fill all required fields')
 
     def test_signup_invalid_email(self):
         """ Test sign up with invalid email """
@@ -53,15 +53,15 @@ class TestUser(BaseTest):
             'username' : 'tirgei',
             'email' : 'tirgei',
             'password' : 'asfsgsdg',
-            'phonenumber' : '0712345678'
+            'phone_number' : '0712345678'
         }
 
-        res = self.client.post('/api/v1/register', json=json.dumps(user), headers={'Content-Type': 'application/json'})
+        res = self.client.post('/api/v1/register', json=user, headers={'Content-Type': 'application/json'})
         data = res.get_json()
 
         self.assertEqual(res.status_code, 400)
         self.assertEqual(data['status'], 400)
-        self.assertEqual(data['error'], 'Invalid email')
+        self.assertEqual(data['error'], 'Invalid data. Please fill all required fields')
 
     def test_signup_invalid_password(self):
         """ Test signup with invalid password """
@@ -73,15 +73,15 @@ class TestUser(BaseTest):
             'username' : 'tirgei',
             'email' : 'tirgei@gmail.com',
             'password' : 'asfsgsdg',
-            'phonenumber' : '0712345678'
+            'phone_number' : '0712345678'
         }
 
-        res = self.client.post('/api/v1/register', json=json.dumps(user), headers={'Content-Type': 'application/json'})
+        res = self.client.post('/api/v1/register', json=user, headers={'Content-Type': 'application/json'})
         data = res.get_json()
 
         self.assertEqual(res.status_code, 400)
         self.assertEqual(data['status'], 400)
-        self.assertEqual(data['error'], 'Invalid password')
+        self.assertEqual(data['error'], 'Invalid data. Please fill all required fields')
 
     def test_signup(self):
         """ Test sign up with correct data """
@@ -93,15 +93,15 @@ class TestUser(BaseTest):
             'username' : 'tirgei',
             'email' : 'tirgei@gmail.com',
             'password' : 'asfD3#sdg',
-            'phonenumber' : '0712345678'
+            'phone_number' : '0712345678'
         }
 
-        res = self.client.post('/api/v1/register', json=json.dumps(user), headers={'Content-Type': 'application/json'})
+        res = self.client.post('/api/v1/register', json=user, headers={'Content-Type': 'application/json'})
         data = res.get_json()
 
         self.assertEqual(res.status_code, 201)
         self.assertEqual(data['status'], 201)
-        self.assertEqual(data['error'], 'User created successfully')
+        self.assertEqual(data['message'], 'User created successfully')
         self.assertEqual(data['data']['username'], user['username'])
 
     def test_signup_existing_email(self):
@@ -115,10 +115,10 @@ class TestUser(BaseTest):
             'username' : 'joketch',
             'email' : 'jd@gmail.com',
             'password' : 'asfD3#sdg',
-            'phonenumber' : '0712345678'
+            'phone_number' : '0712345678'
         }
 
-        res_1 = self.client.post('/api/v1/register', json=json.dumps(user_1), headers={'Content-Type': 'application/json'})
+        res_1 = self.client.post('/api/v1/register', json=user_1, headers={'Content-Type': 'application/json'})
         data_1 = res_1.get_json()
 
         self.assertEqual(res_1.status_code, 201)
@@ -132,10 +132,10 @@ class TestUser(BaseTest):
             'username' : 'dilly',
             'email' : 'jd@gmail.com',
             'password' : 'asfD3#sdg',
-            'phonenumber' : '0712345678'
+            'phone_number' : '0712345678'
         }
 
-        res_2 = self.client.post('/api/v1/register', json=json.dumps(user_2), headers={'Content-Type': 'application/json'})
+        res_2 = self.client.post('/api/v1/register', json=user_2, headers={'Content-Type': 'application/json'})
         data_2 = res_2.get_json()
 
         self.assertEqual(res_2.status_code, 409)
@@ -153,10 +153,10 @@ class TestUser(BaseTest):
             'username' : 'doe',
             'email' : 'john@gmail.com',
             'password' : 'asfD3#sdg',
-            'phonenumber' : '0712345678'
+            'phone_number' : '0712345678'
         }
 
-        res_1 = self.client.post('/api/v1/register', json=json.dumps(user_1), headers={'Content-Type': 'application/json'})
+        res_1 = self.client.post('/api/v1/register', json=user_1, headers={'Content-Type': 'application/json'})
         data_1 = res_1.get_json()
 
         self.assertEqual(res_1.status_code, 201)
@@ -170,10 +170,10 @@ class TestUser(BaseTest):
             'username' : 'doe',
             'email' : 'jdoe@gmail.com',
             'password' : 'asfD3#sdg',
-            'phonenumber' : '0712345678'
+            'phone_number' : '0712345678'
         }
 
-        res_2 = self.client.post('/api/v1/register', json=json.dumps(user_2), headers={'Content-Type': 'application/json'})
+        res_2 = self.client.post('/api/v1/register', json=user_2, headers={'Content-Type': 'application/json'})
         data_2 = res_2.get_json()
 
         self.assertEqual(res_2.status_code, 409)
