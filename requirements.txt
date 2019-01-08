@@ -1,5 +1,6 @@
 atomicwrites==1.2.1
 attrs==18.2.0
+autoenv==1.0.0
 certifi==2018.11.29
 chardet==3.0.4
 Click==7.0
@@ -18,6 +19,7 @@ py==1.7.0
 PyJWT==1.7.1
 pytest==4.1.0
 pytest-cov==2.6.1
+python-dotenv==0.10.1
 requests==2.21.0
 six==1.12.0
 urllib3==1.24.1
