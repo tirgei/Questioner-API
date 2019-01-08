@@ -13,6 +13,7 @@ class User(object):
         data['password'] = generate_password_hash(data['password'])
         data['registered_on'] = datetime.now()
         data['modified_on'] = datetime.now()
+        data['is_admin'] = False
         users.append(data)
         return data
         
