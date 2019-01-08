@@ -21,7 +21,8 @@ class TestUser(BaseTest):
         """ Test sign up with empty data sent """
         user = {}
 
-        res = self.client.post('/api/v1/register', json=json.dumps(user), headers={'Content-Type': 'application/json'})
+        res = self.client.post('/api/v1/register', json=user
+        , headers={'Content-Type': 'application/json'})
         data = res.get_json()
 
         self.assertEqual(res.status_code, 400)
@@ -179,3 +180,64 @@ class TestUser(BaseTest):
         self.assertEqual(res_2.status_code, 409)
         self.assertEqual(data_2['status'], 409)
         self.assertEqual(data_2['error'], 'Username already exists')
+
+    def test_login_no_data(self):
+        """ Test login with no data provided """
+        res = self.client.post('/api/v1/login')
+        data = res.get_json()
+
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(data['status'], 400)
+        self.assertEqual(data['error'], 'No data provided')
+
+    def test_login_empty_data(self):
+        """ Test login with empty data provided """
+        user = {}
+
+        res = self.client.post('/api/v1/login', json=user, headers={'Content-Type': 'application/json'})
+        data = res.get_json()
+
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(data['status'], 400)
+        self.assertEqual(data['error'], 'No data provided')
+
+    def test_login_unregistered_user(self):
+        """ Test login with unregistered user credentials """
+        user = {
+            'username' : 'mikey',
+            'password' : 'sfsf87#E'
+        }
+
+        res = self.client.post('/api/v1/login', json=user, headers={'Content-Type': 'application/json'})
+        data = res.get_json()
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['status'], 404)
+        self.assertEqual(data['error'], 'User not found')
+
+    def test_login(self):
+        """ Test successfull login """
+        # Register user
+        user = {
+            'firstname' : 'Vincent',
+            'lastname' : 'Tirgei',
+            'othername' : 'Doe',
+            'username' : 'tirgeiv',
+            'email' : 'tirgeiv@gmail.com',
+            'password' : 'asfD3#sdg',
+            'phone_number' : '0712345678'
+        }
+
+        res_1 = self.client.post('/api/v1/register', json=user, headers={'Content-Type': 'application/json'})
+        data_1 = res_1.get_json()
+
+        self.assertEqual(res_1.status_code, 201)
+        self.assertEqual(data_1['status'], 201)
+
+        # Login user
+        res_2 = self.client.post('/api/v1/register', json={'username': 'tirgeiv', 'password': 'asfD3#sdg'}, headers={'Content-Type': 'application/json'})
+        data_2 = res_2.get_json()
+
+        self.assertEqual(res_2.status_code, 201)
+        self.assertEqual(data_2['status'], 201)
+        self.assertEqual(data_2['message'], 'User logged in successfully')
