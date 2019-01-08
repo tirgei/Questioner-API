@@ -1,5 +1,4 @@
 
-@staticmethod
 def generate_id(collection):
     """ Function to generate ID for collection """
 
