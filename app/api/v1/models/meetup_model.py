@@ -23,3 +23,7 @@ class Meetup(object):
         """ Function to check if meetup exists """
         fetched_meetups = [meetup for meetup in meetups if meetup[key] == value]
         return len(fetched_meetups) > 0
+
+    def all(self):
+        """ Function to fetch all meetups """
+        return meetups
