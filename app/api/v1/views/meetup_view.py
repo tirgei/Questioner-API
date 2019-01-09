@@ -36,3 +36,10 @@ def fetch_meetup(meetup_id):
     meetups = db.fetch_by_id(meetup_id)
     result = MeetupSchema(many=True).dump(meetups).data
     return jsonify({'status':200, 'data':result}), 200
+
+@v1.route('/meetups', methods=['GET'])
+def fetch_all():
+    """ Function to fetch all meetups """
+    meetups = db.all()
+    result = MeetupSchema(many=True).dump(meetups).data
+    return jsonify({'status':200, 'data':result}), 200
