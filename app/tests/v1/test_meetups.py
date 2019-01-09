@@ -113,7 +113,7 @@ class TestMeetups(BaseTest):
         self.client.post('/api/v1/meetups', json=meetup, headers=self.headers)
         self.client.post('/api/v1/meetups', json=meetup2, headers=self.headers)
 
-        res = self.client.get('/api/v1/meetups')
+        res = self.client.get('/api/v1/meetups/upcoming')
         data = res.get_json()
 
         self.assertEqual(res.status_code, 200)
