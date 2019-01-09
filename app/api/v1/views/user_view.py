@@ -35,7 +35,7 @@ def register():
 
     # Save new user and get result
     new_user = db.save(data)
-    result = UserSchema().dump(new_user).data
+    result = UserSchema(exclude=['password']).dump(new_user).data
 
     # Generate access and refresh tokens and return response
     access_token = create_access_token(identity=new_user['id'], fresh=True)
@@ -47,3 +47,42 @@ def register():
         'access_token' : access_token, 
         'refresh_token' : refresh_token
         }), 201
+
+@v1.route('/login', methods=['POST'])
+def login():
+    """ Function to login existing user """
+    json_data = request.get_json()
+
+    # Check if request contains data
+    if not json_data:
+        return jsonify({'status': 400, 'error': 'No data provided'}), 400
+
+    # Check if credentials have been passed
+    data, errors = UserSchema().load(json_data, partial=True)
+    if errors:
+        return jsonify({'status': 400, 'error': 'Invalid data. Please fill all required fields', 'errors': errors}), 400
+
+    try:
+        username = data['username']
+        password = data['password']
+    except:
+        return jsonify({'status': 400, 'error': 'Invalid credentials'}), 400
+
+    # Check if username exists
+    if not db.exists('username', username):
+        return jsonify({'status': 404, 'error' : 'User not found'}), 404
+
+    user = db.find_by_username(username)
+
+    # Check if password match
+    db.checkpassword(user['password'], password)
+
+     # Generate tokens and return response
+    access_token = create_access_token(identity=user['id'], fresh=True)
+    refresh_token = create_refresh_token(identity=True)
+    return jsonify({
+        'status': 200, 
+        'message': 'User logged in successfully',
+        'access_token': access_token,
+        'refresh_token': refresh_token
+        }), 200
