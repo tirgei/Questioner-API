@@ -9,5 +9,5 @@ class MeetupSchema(Schema):
     topic = fields.Str(required=True, validate=(required))
     location = fields.Str(required=True, validate=(required))
     happening_on = fields.Str(required=True, validate=(required))
-    tags = fields.List(required=False, fields.Str())
-    images = fields.List(required=False, fields.Str())
+    tags = fields.List(fields.Str(), required=False)
+    images = fields.List(fields.Str(), required=False)
