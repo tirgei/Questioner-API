@@ -22,7 +22,7 @@ class TestMeetups(BaseTest):
         """ Test create meetup with no data sent """
         meetup = {}
 
-        res = self.client.post('/api/v1/meetups', json=meetup, headers=self.headers)
+        res = self.client.post('/api/v1/meetups', json=json.dumps(meetup), headers=self.headers)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 400)
