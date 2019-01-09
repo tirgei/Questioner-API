@@ -21,8 +21,7 @@ class TestUser(BaseTest):
         """ Test sign up with empty data sent """
         user = {}
 
-        res = self.client.post('/api/v1/register', json=user
-        , headers={'Content-Type': 'application/json'})
+        res = self.client.post('/api/v1/register', json=json.dumps(user), headers={'Content-Type': 'application/json'})
         data = res.get_json()
 
         self.assertEqual(res.status_code, 400)
@@ -235,9 +234,36 @@ class TestUser(BaseTest):
         self.assertEqual(data_1['status'], 201)
 
         # Login user
-        res_2 = self.client.post('/api/v1/register', json={'username': 'tirgeiv', 'password': 'asfD3#sdg'}, headers={'Content-Type': 'application/json'})
+        res_2 = self.client.post('/api/v1/login', json={'username': 'tirgeiv', 'password': 'asfD3#sdg'}, headers={'Content-Type': 'application/json'})
         data_2 = res_2.get_json()
 
-        self.assertEqual(res_2.status_code, 201)
-        self.assertEqual(data_2['status'], 201)
+        self.assertEqual(res_2.status_code, 200)
+        self.assertEqual(data_2['status'], 200)
         self.assertEqual(data_2['message'], 'User logged in successfully')
+
+    def test_login_no_username_provided(self):
+        """ Test login with no username provided """
+        # Register user
+        user = {
+            'firstname' : 'Vincent',
+            'lastname' : 'Tirgei',
+            'othername' : 'Doe',
+            'username' : 'tirgeic',
+            'email' : 'tirgeic@gmail.com',
+            'password' : 'asfD3#sdg',
+            'phone_number' : '0712345678'
+        }
+
+        res_1 = self.client.post('/api/v1/register', json=user, headers={'Content-Type': 'application/json'})
+        data_1 = res_1.get_json()
+
+        self.assertEqual(res_1.status_code, 201)
+        self.assertEqual(data_1['status'], 201)
+
+        # Login user
+        res_2 = self.client.post('/api/v1/login', json={'password': 'asfD3#sdg'}, headers={'Content-Type': 'application/json'})
+        data_2 = res_2.get_json()
+
+        self.assertEqual(res_2.status_code, 400)
+        self.assertEqual(data_2['status'], 400)
+        self.assertEqual(data_2['error'], 'Invalid credentials')
