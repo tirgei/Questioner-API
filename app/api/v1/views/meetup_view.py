@@ -23,4 +23,4 @@ def create_meetup():
     # Save new meetup and return response
     new_meetup = db.save(data)
     result = MeetupSchema().dump(new_meetup).data
-    return jsonify({'status': 201, 'message': 'Meetup created successfully', 'data': [result]})
+    return jsonify({'status': 201, 'message': 'Meetup created successfully', 'data': [result]}), 201
