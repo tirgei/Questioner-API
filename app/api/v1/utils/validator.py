@@ -21,30 +21,24 @@ def email(value):
 
 def password(password):
     """ Validate password is Strong """
-
-    flag = 0
-    while True:   
-        if (len(password)<8): 
-            flag = -1
-            break
-        elif not re.search("[a-z]", password): 
-            flag = -1
-            break
-        elif not re.search("[A-Z]", password): 
-            flag = -1
-            break
-        elif not re.search("[0-9]", password): 
-            flag = -1
-            break
-        elif not re.search("[_@$#&^%]", password): 
-            flag = -1
-            break
-        elif re.search("\s", password): 
-            flag = -1
-            break
-        else: 
-            break
     
-    if flag == -1:
-        raise ValidationError('Weak password provided')
+    message = 'Invalid password'
+
+    if len(password) < 8:
+        raise ValidationError(message)
+
+    scores = {}
+
+    for letter in password:
+        if letter.islower():
+            scores['has_lower'] = 1
+
+        if letter.isupper():
+            scores['has_upper'] = 1
+
+        if letter.isdigit():
+            scores['has_digit'] = 1
+
+    if sum(scores.values()) < 3:
+        raise ValidationError(message)
         
