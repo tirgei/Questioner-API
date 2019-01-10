@@ -1,24 +1,20 @@
 from datetime import datetime
+from .base_model import Model
 from ..utils.utils import generate_id
 
 questions = []
 
-class Question(object):
+class Question(Model):
     """ Model class for the Question object """
+
+    def __init__(self):
+        super().__init__(questions)
 
     def save(self, data):
         """ Function to save new meetup """
-        data['id'] = generate_id(questions)
-        data['created_on'] = datetime.now()
-        data['modified_on'] = datetime.now()
+        data['id'] = generate_id(self.collection)
         data['votes'] = 0
-        questions.append(data)
-        return data
-
-    def exists(self, key, value):
-        """ Function to check if question with provided key, value exists """
-        found_questions = [question for question in questions if value == question[key]]
-        return len(found_questions) > 0 
+        return super().save(data)
 
     def upvote(self, question_id):
         """ Function to upvote question """

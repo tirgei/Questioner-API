@@ -52,8 +52,6 @@ $ pip install -r requirements.txt
 - Set the environment variables
 ```
 $ mv .env.example .env
-```
-```
 $ source .env
 ```
 
@@ -74,7 +72,7 @@ $ pytest --cov=app
 | **POST** | `/api/v1/register` | Register a new user |
 | **POST** | `/api/v1/login` | Login a user |
 | **POST** | `/api/v1/refresh-token` | Refresh access token |
-| **LOGOUT** | `/api/v1/logout` | Logout a user |
+| **POST** | `/api/v1/logout` | Logout a user |
 | **POST** | `/api/v1/meetups` | Create a meetup |
 | **GET** | `/api/v1/meetups` | Fetch all upcoming meetups |
 | **GET** | `/api/v1/meetups/<int:meetup_id>` | Fetch a specific meetup |

@@ -29,7 +29,7 @@ def post_question():
 def upvote_question(question_id):
     """ Endpoint to upvote question """
 
-    # Check if question exists
+    # Check if upvote question exists
     if not db.exists('id', question_id):
         return jsonify({'status': 404, 'message': 'Question not found'}), 404
 
@@ -42,7 +42,7 @@ def upvote_question(question_id):
 def downvote_question(question_id):
     """ Endpoint to downvote question """
 
-    # Check if question exists
+    # Check if downvote question exists
     if not db.exists('id', question_id):
         return jsonify({'status': 404, 'message': 'Question not found'}), 404
 

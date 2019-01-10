@@ -33,7 +33,7 @@ def fetch_meetup(meetup_id):
         return  jsonify({'status': 404, 'error': 'Meetup not found'}), 404
 
     # Get meetups 
-    meetup = db.fetch_by_id(meetup_id)
+    meetup = db.find('id', meetup_id)
     result = MeetupSchema().dump(meetup).data
     return jsonify({'status':200, 'data':result}), 200
 
@@ -57,7 +57,7 @@ def rspvs_meetup(meetup_id, rsvps):
     if rsvps not in valid_responses:
         return jsonify({'status': 400, 'message': 'Invalid rsvp'}), 400
 
-    meetup = db.fetch_by_id(meetup_id)
+    meetup = db.find('id', meetup_id)
     return jsonify({
         'status': 200,
         'message': 'Meetup rsvp successfully',
