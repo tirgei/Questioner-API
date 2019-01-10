@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from instance.config import app_config
 from flask_jwt_extended import (JWTManager)
 from app.api.v1.views.user_view import v1 as users_blueprint_v1
@@ -25,5 +25,10 @@ def create_app(config_name):
     app.register_blueprint(users_blueprint_v1)
     app.register_blueprint(meetups_blueprint_v1)
     app.register_blueprint(questions_blueprint_v1)
+
+    @app.route('/')
+    @app.route('/index')
+    def index():
+        return jsonify({'status': 200, 'message': 'Welcome to Questioner'})
 
     return app
