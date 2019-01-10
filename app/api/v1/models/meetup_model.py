@@ -17,7 +17,7 @@ class Meetup(object):
     def fetch_by_id(self, id):
         """ Function to fetch meetups by ID """
         fetched_meetups = [meetup for meetup in meetups if meetup['id'] == id]
-        return fetched_meetups
+        return fetched_meetups[0]
 
     def exists(self, key, value):
         """ Function to check if meetup exists """
