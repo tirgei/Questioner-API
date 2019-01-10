@@ -15,6 +15,11 @@ def create_app(config_name):
 
     # Initialize JWT
     jwt = JWTManager(app)
+    @jwt.token_in_blacklist_loader
+    def check_blacklisted(token):
+        from app.api.v1.models.token_model import RevokedTokenModel
+        jti = token['jti']
+        return RevokedTokenModel().is_blacklisted(jti)
 
     # Register V1 Blueprints
     app.register_blueprint(users_blueprint_v1)
