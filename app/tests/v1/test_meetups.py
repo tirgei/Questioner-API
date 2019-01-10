@@ -1,5 +1,6 @@
 from flask import json
 from .base_test import BaseTest
+from app.api.v1.models.meetup_model import meetups
 
 class TestMeetups(BaseTest):
     """ Test class for meetup endpoints """
@@ -8,6 +9,11 @@ class TestMeetups(BaseTest):
         """ Initialize variables to be used for tests """
         self.headers = {'Content-Type': 'application/json'}
         super().setUp()
+
+    def tearDown(self):
+        """ Desdtroy initialized variables """
+        meetups.clear()
+        super().tearDown()
 
     def test_create_meetup_no_data(self):
         """ Test create meetup with no data sent """

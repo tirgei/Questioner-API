@@ -1,5 +1,6 @@
 from flask import json
 from .base_test import BaseTest
+from app.api.v1.models.user_model import users
 
 class TestUser(BaseTest):
     """ Test class for user endpoints """
@@ -8,6 +9,20 @@ class TestUser(BaseTest):
         """ Initialize variables to be used for user tests """
         super().setUp()
 
+    def tearDown(self):
+        """ Destroy initialized variables """
+        users.clear()
+        super().tearDown()
+
+    def test_index(self):
+        """ Test index """
+        res = self.client.get('/api/v1/index')
+        data = res.get_json()
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['status'], 200)
+        self.assertEqual(data['message'], 'Welcome to Questioner')
+
     def test_signup_no_data(self):
         """ Test sign up with no data sent """
         res = self.client.post('/api/v1/register')
@@ -15,7 +30,7 @@ class TestUser(BaseTest):
 
         self.assertEqual(res.status_code, 400)
         self.assertEqual(data['status'], 400)
-        self.assertEqual(data['error'], 'No data provided')
+        self.assertEqual(data['message'], 'No data provided')
 
     def test_signup_empty_data(self):
         """ Test sign up with empty data sent """
@@ -26,7 +41,7 @@ class TestUser(BaseTest):
 
         self.assertEqual(res.status_code, 400)
         self.assertEqual(data['status'], 400)
-        self.assertEqual(data['error'], 'Invalid data. Please fill all required fields')
+        self.assertEqual(data['message'], 'Invalid data. Please fill all required fields')
 
     def test_signup_missing_fields(self):
         """ Test signup with missing fields in data sent """
@@ -41,7 +56,7 @@ class TestUser(BaseTest):
 
         self.assertEqual(res.status_code, 400)
         self.assertEqual(data['status'], 400)
-        self.assertEqual(data['error'], 'Invalid data. Please fill all required fields')
+        self.assertEqual(data['message'], 'Invalid data. Please fill all required fields')
 
     def test_signup_invalid_email(self):
         """ Test sign up with invalid email """
@@ -61,7 +76,7 @@ class TestUser(BaseTest):
 
         self.assertEqual(res.status_code, 400)
         self.assertEqual(data['status'], 400)
-        self.assertEqual(data['error'], 'Invalid data. Please fill all required fields')
+        self.assertEqual(data['message'], 'Invalid data. Please fill all required fields')
 
     def test_signup_invalid_password(self):
         """ Test signup with invalid password """
@@ -81,7 +96,7 @@ class TestUser(BaseTest):
 
         self.assertEqual(res.status_code, 400)
         self.assertEqual(data['status'], 400)
-        self.assertEqual(data['error'], 'Invalid data. Please fill all required fields')
+        self.assertEqual(data['message'], 'Invalid data. Please fill all required fields')
 
     def test_signup(self):
         """ Test sign up with correct data """
@@ -140,7 +155,7 @@ class TestUser(BaseTest):
 
         self.assertEqual(res_2.status_code, 409)
         self.assertEqual(data_2['status'], 409)
-        self.assertEqual(data_2['error'], 'Email already exists')
+        self.assertEqual(data_2['message'], 'Email already exists')
 
     def test_signup_existing_username(self):
         """ Test sign up with existing username """
@@ -178,7 +193,7 @@ class TestUser(BaseTest):
 
         self.assertEqual(res_2.status_code, 409)
         self.assertEqual(data_2['status'], 409)
-        self.assertEqual(data_2['error'], 'Username already exists')
+        self.assertEqual(data_2['message'], 'Username already exists')
 
     def test_login_no_data(self):
         """ Test login with no data provided """
@@ -187,7 +202,7 @@ class TestUser(BaseTest):
 
         self.assertEqual(res.status_code, 400)
         self.assertEqual(data['status'], 400)
-        self.assertEqual(data['error'], 'No data provided')
+        self.assertEqual(data['message'], 'No data provided')
 
     def test_login_empty_data(self):
         """ Test login with empty data provided """
@@ -198,7 +213,7 @@ class TestUser(BaseTest):
 
         self.assertEqual(res.status_code, 400)
         self.assertEqual(data['status'], 400)
-        self.assertEqual(data['error'], 'No data provided')
+        self.assertEqual(data['message'], 'No data provided')
 
     def test_login_unregistered_user(self):
         """ Test login with unregistered user credentials """
@@ -212,7 +227,7 @@ class TestUser(BaseTest):
 
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data['status'], 404)
-        self.assertEqual(data['error'], 'User not found')
+        self.assertEqual(data['message'], 'User not found')
 
     def test_login(self):
         """ Test successfull login """
@@ -266,4 +281,4 @@ class TestUser(BaseTest):
 
         self.assertEqual(res_2.status_code, 400)
         self.assertEqual(data_2['status'], 400)
-        self.assertEqual(data_2['error'], 'Invalid credentials')
+        self.assertEqual(data_2['message'], 'Invalid credentials')
