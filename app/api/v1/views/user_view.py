@@ -28,7 +28,7 @@ def register():
         abort(make_response(jsonify({'status': 400, 'message' : 'Invalid data. Please fill all required fields', 'errors': errors}), 400))
 
     # Check if username exists
-    if db.exists('username', data['username']):
+    if next(filter(lambda u: u['username'] == data['username'], db.all()), None):
         abort(make_response(jsonify({'status': 409, 'message' : 'Username already exists'}), 409))
 
     # Check if email exists
