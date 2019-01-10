@@ -2,7 +2,7 @@ from flask import jsonify, request
 from ...v1 import version_1 as v1
 from ..schemas.user_schema import UserSchema
 from ..models.user_model import User
-from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, get_jwt_identity)
+from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, get_jwt_identity, jwt_refresh_token_required)
 
 db = User()
 
@@ -86,3 +86,10 @@ def login():
         'access_token': access_token,
         'refresh_token': refresh_token
         }), 200
+
+@v1.route('/refresh-token', methods=['POST'])
+@jwt_refresh_token_required
+def refresh_token():
+    current_user = get_jwt_identity()
+    access_token = create_access_token(identity=current_user)
+    return jsonify({'status': 200, 'message': 'Token refreshed successfully', 'access_token': access_token})
