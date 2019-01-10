@@ -290,10 +290,11 @@ class TestUser(BaseTest):
         data = res.get_json()
 
         self.assertEqual(res.status_code, 401)
+        self.assertEqual(data['msg'], 'Missing Authorization Header')
 
     def test_refresh_access_token_passing_access_token(self):
         """ Test refresh access token passing access token """
-        self.__register()
+        super().register()
 
         res = self.client.post('/api/v1/refresh-token', headers={'Authorization': 'Bearer {}'.format(self.access_token)})
         data = res.get_json()
@@ -304,7 +305,7 @@ class TestUser(BaseTest):
 
     def test_refresh_access_token(self):
         """ Test refresh access token """
-        self.__register()
+        super().register()
 
         res = self.client.post('/api/v1/refresh-token', headers={'Authorization': 'Bearer {}'.format(self.refresh_token)})
         data = res.get_json()
@@ -313,25 +314,51 @@ class TestUser(BaseTest):
         self.assertEqual(data['status'], 200)
         self.assertEqual(data['message'], 'Token refreshed successfully')
 
+    def test_logout_no_access_token(self):
+        """ Test logout without access token """
 
-    def __register(self):
-        """ Function to sign up user and get access token """
-        # Register user
-        user = {
-            'firstname' : 'Vincent',
-            'lastname' : 'Tirgei',
-            'othername' : 'Doe',
-            'username' : 'tirgeiv',
-            'email' : 'tirgeiv@gmail.com',
-            'password' : 'asfD3#sdg',
-            'phone_number' : '0712345678'
-        }
-
-        res = self.client.post('/api/v1/register', json=user, headers={'Content-Type': 'application/json'})
+        res = self.client.post('/api/v1/logout')
         data = res.get_json()
 
-        self.access_token = data['access_token']
-        self.refresh_token = data['refresh_token']
+        self.assertEqual(res.status_code, 401)
+        self.assertEqual(data['msg'], 'Missing Authorization Header')
+
+    def test_logout_passing_refesh_token(self):
+        """ Test logout passing refresh token """
+
+        super().register()
+
+        res = self.client.post('/api/v1/logout', headers={'Authorization': 'Bearer {}'.format(self.refresh_token)})
+        data = res.get_json()
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['msg'], 'Only access tokens are allowed')
+
+    def test_logout(self):
+        """ Test logout successfully """
+        super().register()
+
+        res = self.client.post('/api/v1/logout', headers={'Authorization': 'Bearer {}'.format(self.access_token)})
+        data = res.get_json()
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['status'], 200)
+        self.assertEqual(data['message'], 'Logged out successfully')
+
+    def test_logout_revoked_token(self):
+        """ Test logout without access token """
+        # Register user
+        super().register()
+
+        # Logout user
+        self.client.post('/api/v1/logout', headers={'Authorization': 'Bearer {}'.format(self.access_token)})
+
+        # Logout user again
+        res = self.client.post('/api/v1/logout', headers={'Authorization': 'Bearer {}'.format(self.access_token)})
+        data = res.get_json()
+
+        self.assertEqual(res.status_code, 401)
+        self.assertEqual(data['msg'], 'Token has been revoked')
     
 
 

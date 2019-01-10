@@ -2,7 +2,9 @@ from flask import jsonify, request
 from ...v1 import version_1 as v1
 from ..schemas.user_schema import UserSchema
 from ..models.user_model import User
-from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, get_jwt_identity, jwt_refresh_token_required)
+from ..models.token_model import RevokedTokenModel
+from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required,
+                             get_jwt_identity, jwt_refresh_token_required, get_raw_jwt)
 
 db = User()
 
@@ -14,14 +16,14 @@ def index():
 @v1.route('/register', methods=['POST'])
 def register():
     """ Function to register new user """
-    json_data = request.get_json()
+    register_data = request.get_json()
 
     # No data has been provided
-    if not json_data:
+    if not register_data:
         return jsonify({'status': 400, 'message': 'No data provided'}), 400
 
     # Check if request is valid
-    data, errors = UserSchema().load(json_data)
+    data, errors = UserSchema().load(register_data)
     if errors:
         return jsonify({'status': 400, 'message' : 'Invalid data. Please fill all required fields', 'errors': errors}), 400
 
@@ -51,14 +53,14 @@ def register():
 @v1.route('/login', methods=['POST'])
 def login():
     """ Function to login existing user """
-    json_data = request.get_json()
+    login_data = request.get_json()
 
     # Check if request contains data
-    if not json_data:
+    if not login_data:
         return jsonify({'status': 400, 'message': 'No data provided'}), 400
 
     # Check if credentials have been passed
-    data, errors = UserSchema().load(json_data, partial=True)
+    data, errors = UserSchema().load(login_data, partial=True)
     if errors:
         return jsonify({'status': 400, 'message': 'Invalid data. Please fill all required fields', 'errors': errors}), 400
 
@@ -90,6 +92,21 @@ def login():
 @v1.route('/refresh-token', methods=['POST'])
 @jwt_refresh_token_required
 def refresh_token():
+    """ Endpoint to refresh user access token """
     current_user = get_jwt_identity()
     access_token = create_access_token(identity=current_user)
     return jsonify({'status': 200, 'message': 'Token refreshed successfully', 'access_token': access_token})
+
+@v1.route('logout', methods=['POST'])
+@jwt_required
+def logout():
+    """ Endpoint to logout user """
+    user_jti = get_raw_jwt()['jti']
+
+    try:
+        RevokedTokenModel().add(user_jti)
+        return jsonify({'status': 200, 'message': 'Logged out successfully'}), 200
+    except:
+        return jsonify({"status": 500, "message": "Error deleting account"})
+
+
