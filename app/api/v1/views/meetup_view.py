@@ -8,7 +8,7 @@ db = Meetup()
 
 @v1.route('/meetups', methods=['POST'])
 def create_meetup():
-    """ Function to create meetup """
+    """ Endpoint to create meetup """
     json_data = request.get_json()
 
     # No data has been provided
@@ -27,19 +27,44 @@ def create_meetup():
 
 @v1.route('/meetups/<int:meetup_id>', methods=['GET'])
 def fetch_meetup(meetup_id):
-    """ Function to fetch specific meetup """
+    """ Endpoint to fetch specific meetup """
     # Check if meetup exists 
     if not db.exists('id', meetup_id):
         return  jsonify({'status': 404, 'error': 'Meetup not found'}), 404
 
     # Get meetups 
-    meetups = db.fetch_by_id(meetup_id)
-    result = MeetupSchema(many=True).dump(meetups).data
+    meetup = db.fetch_by_id(meetup_id)
+    result = MeetupSchema().dump(meetup).data
     return jsonify({'status':200, 'data':result}), 200
 
 @v1.route('/meetups/upcoming', methods=['GET'])
 def fetch_upcoming_meetups():
-    """ Function to fetch all meetups """
+    """ Endpoint to fetch all meetups """
     meetups = db.all()
     result = MeetupSchema(many=True).dump(meetups).data
     return jsonify({'status':200, 'data':result}), 200
+
+@v1.route('/meetups/<int:meetup_id>/<string:rsvps>', methods=['POST'])
+def rspvs_meetup(meetup_id, rsvps):
+    """ Endpoint to RSVP to meetup """
+    valid_responses = ('yes', 'no', 'maybe')
+
+    # Check if meetup exists
+    if not db.exists('id', meetup_id):
+        return jsonify({'status': 404, 'message': 'Meetup not found'}), 404
+
+    # Check if rsvp is valid
+    if rsvps not in valid_responses:
+        return jsonify({'status': 400, 'message': 'Invalid rsvp'}), 400
+
+    meetup = db.fetch_by_id(meetup_id)
+    return jsonify({
+        'status': 200,
+        'message': 'Meetup rsvp successfully',
+        'data': {
+            'meetup': meetup['id'],
+            'topic' : meetup['topic'],
+            'status': rsvps
+        }
+    }), 200
+    
