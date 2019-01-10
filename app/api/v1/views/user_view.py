@@ -74,7 +74,7 @@ def login():
     if not db.exists('username', username):
         return jsonify({'status': 404, 'message' : 'User not found'}), 404
 
-    user = db.find_by_username(username)
+    user = db.find('username', username)
 
     # Check if password match
     db.checkpassword(user['password'], password)
