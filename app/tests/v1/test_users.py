@@ -282,3 +282,58 @@ class TestUser(BaseTest):
         self.assertEqual(res_2.status_code, 400)
         self.assertEqual(data_2['status'], 400)
         self.assertEqual(data_2['message'], 'Invalid credentials')
+
+    def test_refresh_access_token_no_token_passed(self):
+        """ Test refresh access token without passing refresh token"""
+
+        res = self.client.post('/api/v1/refresh-token')
+        data = res.get_json()
+
+        self.assertEqual(res.status_code, 401)
+
+    def test_refresh_access_token_passing_access_token(self):
+        """ Test refresh access token passing access token """
+        self.__register()
+
+        res = self.client.post('/api/v1/refresh-token', headers={'Authorization': 'Bearer {}'.format(self.access_token)})
+        data = res.get_json()
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['msg'], 'Only refresh tokens are allowed')
+
+
+    def test_refresh_access_token(self):
+        """ Test refresh access token """
+        self.__register()
+
+        res = self.client.post('/api/v1/refresh-token', headers={'Authorization': 'Bearer {}'.format(self.refresh_token)})
+        data = res.get_json()
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['status'], 200)
+        self.assertEqual(data['message'], 'Token refreshed successfully')
+
+
+    def __register(self):
+        """ Function to sign up user and get access token """
+        # Register user
+        user = {
+            'firstname' : 'Vincent',
+            'lastname' : 'Tirgei',
+            'othername' : 'Doe',
+            'username' : 'tirgeiv',
+            'email' : 'tirgeiv@gmail.com',
+            'password' : 'asfD3#sdg',
+            'phone_number' : '0712345678'
+        }
+
+        res = self.client.post('/api/v1/register', json=user, headers={'Content-Type': 'application/json'})
+        data = res.get_json()
+
+        self.access_token = data['access_token']
+        self.refresh_token = data['refresh_token']
+    
+
+
+
+    
