@@ -67,7 +67,7 @@ $ pytest --cov=app
 
 ## API Endpoints (V1)
 
-| **HTTP METHOD** | **URI ** | **ACTION** |
+| **HTTP METHOD** | **URI** | **ACTION** |
 | --- | --- | --- |
 | **POST** | `/api/v1/register` | Register a new user |
 | **POST** | `/api/v1/login` | Login a user |
