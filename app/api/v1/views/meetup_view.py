@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import jsonify, request, abort, make_response
 from ...v1 import version_1 as v1
 from ..schemas.meetup_schema import MeetupSchema
 from ..models.meetup_model import Meetup
@@ -13,12 +13,12 @@ def create_meetup():
 
     # No data has been provided
     if not json_data:
-        return jsonify({'status': 400, 'error': 'No data provided'}), 400
+        abort(make_response(jsonify({'status': 400, 'error': 'No data provided'}), 400))
 
     # Check if request is valid
     data, errors = MeetupSchema().load(json_data)
     if errors:
-        return jsonify({'status': 400, 'error' : 'Invalid data. Please fill all required fields', 'errors': errors}), 400
+        abort(make_response(jsonify({'status': 400, 'error' : 'Invalid data. Please fill all required fields', 'errors': errors}), 400))
 
     # Save new meetup and return response
     new_meetup = db.save(data)
@@ -30,7 +30,7 @@ def fetch_meetup(meetup_id):
     """ Endpoint to fetch specific meetup """
     # Check if meetup exists 
     if not db.exists('id', meetup_id):
-        return  jsonify({'status': 404, 'error': 'Meetup not found'}), 404
+        abort(make_response(jsonify({'status': 404, 'error': 'Meetup not found'}), 404))
 
     # Get meetups 
     meetup = db.find('id', meetup_id)
@@ -51,11 +51,11 @@ def rspvs_meetup(meetup_id, rsvps):
 
     # Check if meetup exists
     if not db.exists('id', meetup_id):
-        return jsonify({'status': 404, 'message': 'Meetup not found'}), 404
+        abort(make_response(jsonify({'status': 404, 'message': 'Meetup not found'}), 404))
 
     # Check if rsvp is valid
     if rsvps not in valid_responses:
-        return jsonify({'status': 400, 'message': 'Invalid rsvp'}), 400
+        abort(make_response(jsonify({'status': 400, 'message': 'Invalid rsvp'}), 400))
 
     meetup = db.find('id', meetup_id)
     return jsonify({

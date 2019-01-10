@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import jsonify, request, abort, make_response
 from ...v1 import version_1 as v1
 from ..schemas.question_schema import QuestionSchema
 from ..models.question_model import Question
@@ -13,12 +13,12 @@ def post_question():
 
     # No data has been provided
     if not meetup_data:
-        return jsonify({'status': 400, 'message': 'No data provided'}), 400
+        abort(make_response(jsonify({'status': 400, 'message': 'No data provided'}), 400))
 
     # Check if request is valid
     data, errors = QuestionSchema().load(meetup_data)
     if errors:
-        return jsonify({'status': 400, 'message' : 'Invalid data. Please fill all required fields', 'errors': errors}), 400
+        abort(make_response(jsonify({'status': 400, 'message' : 'Invalid data. Please fill all required fields', 'errors': errors}), 400))
 
     # Save question and return response
     question = db.save(data)
@@ -31,7 +31,7 @@ def upvote_question(question_id):
 
     # Check if upvote question exists
     if not db.exists('id', question_id):
-        return jsonify({'status': 404, 'message': 'Question not found'}), 404
+        abort(make_response(jsonify({'status': 404, 'message': 'Question not found'}), 404))
 
     # Upvote question and return response
     question = db.upvote(question_id)
@@ -44,7 +44,7 @@ def downvote_question(question_id):
 
     # Check if downvote question exists
     if not db.exists('id', question_id):
-        return jsonify({'status': 404, 'message': 'Question not found'}), 404
+        abort(make_response(jsonify({'status': 404, 'message': 'Question not found'}), 404))
 
     # Upvote question and return response
     question = db.downvote(question_id)
