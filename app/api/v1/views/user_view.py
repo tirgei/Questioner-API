@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import jsonify, request, abort, make_response
 from ...v1 import version_1 as v1
 from ..schemas.user_schema import UserSchema
 from ..models.user_model import User
@@ -20,20 +20,20 @@ def register():
 
     # No data has been provided
     if not register_data:
-        return jsonify({'status': 400, 'message': 'No data provided'}), 400
+        abort(make_response(jsonify({'status': 400, 'message': 'No data provided'}), 400))
 
     # Check if request is valid
     data, errors = UserSchema().load(register_data)
     if errors:
-        return jsonify({'status': 400, 'message' : 'Invalid data. Please fill all required fields', 'errors': errors}), 400
+        abort(make_response(jsonify({'status': 400, 'message' : 'Invalid data. Please fill all required fields', 'errors': errors}), 400))
 
     # Check if username exists
     if db.exists('username', data['username']):
-        return jsonify({'status': 409, 'message' : 'Username already exists'}), 409
+        abort(make_response(jsonify({'status': 409, 'message' : 'Username already exists'}), 409))
 
     # Check if email exists
     if db.exists('email', data['email']):
-        return jsonify({'status': 409, 'message' : 'Email already exists'}), 409
+        abort(make_response(jsonify({'status': 409, 'message' : 'Email already exists'}), 409))
 
     # Save new user and get result
     new_user = db.save(data)
@@ -57,22 +57,22 @@ def login():
 
     # Check if request contains data
     if not login_data:
-        return jsonify({'status': 400, 'message': 'No data provided'}), 400
+        abort(make_response(jsonify({'status': 400, 'message': 'No data provided'}), 400))
 
     # Check if credentials have been passed
     data, errors = UserSchema().load(login_data, partial=True)
     if errors:
-        return jsonify({'status': 400, 'message': 'Invalid data. Please fill all required fields', 'errors': errors}), 400
+        abort(make_response(jsonify({'status': 400, 'message': 'Invalid data. Please fill all required fields', 'errors': errors}), 400))
 
     try:
         username = data['username']
         password = data['password']
     except:
-        return jsonify({'status': 400, 'message': 'Invalid credentials'}), 400
+        abort(make_response(jsonify({'status': 400, 'message': 'Invalid credentials'}), 400))
 
     # Check if username exists
     if not db.exists('username', username):
-        return jsonify({'status': 404, 'message' : 'User not found'}), 404
+        abort(make_response(jsonify({'status': 404, 'message' : 'User not found'}), 404))
 
     user = db.find('username', username)
 
@@ -107,6 +107,6 @@ def logout():
         RevokedTokenModel().add(user_jti)
         return jsonify({'status': 200, 'message': 'Logged out successfully'}), 200
     except:
-        return jsonify({"status": 500, "message": "Error deleting account"})
+        abort(make_response(jsonify({"status": 500, "message": "Error deleting account"})))
 
 
