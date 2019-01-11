@@ -13,12 +13,12 @@ def create_meetup():
 
     # No data has been provided
     if not json_data:
-        abort(make_response(jsonify({'status': 400, 'error': 'No data provided'}), 400))
+        abort(make_response(jsonify({'status': 400, 'message': 'No data provided'}), 400))
 
     # Check if request is valid
     data, errors = MeetupSchema().load(json_data)
     if errors:
-        abort(make_response(jsonify({'status': 400, 'error' : 'Invalid data. Please fill all required fields', 'errors': errors}), 400))
+        abort(make_response(jsonify({'status': 400, 'message' : 'Invalid data. Please fill all required fields', 'errors': errors}), 400))
 
     # Save new meetup and return response
     new_meetup = db.save(data)
@@ -30,7 +30,7 @@ def fetch_meetup(meetup_id):
     """ Endpoint to fetch specific meetup """
     # Check if meetup exists 
     if not db.exists('id', meetup_id):
-        abort(make_response(jsonify({'status': 404, 'error': 'Meetup not found'}), 404))
+        abort(make_response(jsonify({'status': 404, 'message': 'Meetup not found'}), 404))
 
     # Get meetups 
     meetup = db.find('id', meetup_id)
@@ -75,3 +75,13 @@ def rspvs_meetup(meetup_id, rsvps):
         }
     }), 200
     
+@v1.route('/meetups/<int:meetup_id>', methods=['DELETE'])
+def delete_meetup(meetup_id):
+    """ Endpoint to delete meetup """
+    # Check if meetup exists 
+    if not db.exists('id', meetup_id):
+        abort(make_response(jsonify({'status': 404, 'message': 'Meetup not found'}), 404))
+
+    # Get meetups 
+    db.delete(meetup_id)
+    return jsonify({'status':200, 'message': 'Meetup deleted successfully'}), 200
