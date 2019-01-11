@@ -80,6 +80,7 @@ $ pytest --cov=app
 | **GET** | `/api/v1/meetups/upcoming` | Fetch all upcoming meetups |
 | **GET** | `/api/v1/meetups/<int:meetup_id>` | Fetch a specific meetup |
 | **POST** | `/api/v1/<int:meetup_id>/<string:rsvp>` | RSVP to a meetup |
+| **DELETE** | `/api/v1/meetups/<int:meetup_id>` | Delete a meetup |
 | **POST** | `/api/v1/questions` | Post a question to a specific meetup |
 | **PATCH** | `/api/v1/questions/<int:question_id>/upvote` | Upvote a question |
 | **PATCH** | `/api/v1/questions/<int:question_id>/downvote` | Downvote a question |
