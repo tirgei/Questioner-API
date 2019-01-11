@@ -13,6 +13,7 @@ The project is managed using [Pivotal Tracker](https://www.pivotaltracker.com). 
 The repo for the frontend is available at [Questioner](https://github.com/tirgei/Questioner)
 
 ## Deployment
+
 Website is hosted on [Questioner](https://tirgei.github.io/Questioner/UI) 
 
 Project API demo is hosted on [Heroku](http://questioner-adc.herokuapp.com)
@@ -75,7 +76,8 @@ $ pytest --cov=app
 | **POST** | `/api/v1/refresh-token` | Refresh access token |
 | **POST** | `/api/v1/logout` | Logout a user |
 | **POST** | `/api/v1/meetups` | Create a meetup |
-| **GET** | `/api/v1/meetups` | Fetch all upcoming meetups |
+| **GET** | `/api/v1/meetups` | Fetch all meetups |
+| **GET** | `/api/v1/meetups/upcoming` | Fetch all upcoming meetups |
 | **GET** | `/api/v1/meetups/<int:meetup_id>` | Fetch a specific meetup |
 | **POST** | `/api/v1/<int:meetup_id>/<string:rsvp>` | RSVP to a meetup |
 | **POST** | `/api/v1/questions` | Post a question to a specific meetup |
