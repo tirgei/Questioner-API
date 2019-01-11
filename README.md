@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.com/tirgei/Questioner-API.svg?branch=develop)](https://travis-ci.com/tirgei/Questioner-API)
 [![Coverage Status](https://coveralls.io/repos/github/tirgei/Questioner-API/badge.svg?branch=develop)](https://coveralls.io/github/tirgei/Questioner-API?branch=develop)
+[![BCH compliance](https://bettercodehub.com/edge/badge/tirgei/Questioner-API?branch=develop)](https://bettercodehub.com/)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/7988c2537aea4cf4b1a9db4089e0312f)](https://www.codacy.com/app/tirgei/Questioner-API?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tirgei/Questioner-API&amp;utm_campaign=Badge_Grade)
 [![Maintainability](https://api.codeclimate.com/v1/badges/e1578991a4632d8dca6c/maintainability)](https://codeclimate.com/github/tirgei/Questioner-API/maintainability)
 
