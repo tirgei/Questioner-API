@@ -101,6 +101,31 @@ class TestMeetups(BaseTest):
         self.assertEqual(data['status'], 404)
         self.assertEqual(data['error'], 'Meetup not found')
 
+    def test_fetch_all_upcoming_meetups(self):
+        """ Test fetch all upcoming meetups """
+        # Create meetups
+        meetup = {
+            'topic' : 'Leveling up with Python',
+            'location' : 'Andela HQ, Nairobi',
+            'happening_on' : '08/01/2019',
+            'tags' : ['python', 'flask']
+        }
+        meetup2 = {
+            'topic' : 'Leveling up with Python',
+            'location' : 'Andela HQ, Nairobi',
+            'happening_on' : '08/01/2019',
+            'tags' : ['python', 'flask']
+        }
+        self.client.post('/api/v1/meetups', json=meetup, headers=self.headers)
+        self.client.post('/api/v1/meetups', json=meetup2, headers=self.headers)
+
+        res = self.client.get('/api/v1/meetups/upcoming')
+        data = res.get_json()
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['status'], 200)
+        self.assertEqual(len(data['data']), 2)
+
     def test_fetch_all_meetups(self):
         """ Test fetch all meetups """
         # Create meetups
@@ -119,7 +144,7 @@ class TestMeetups(BaseTest):
         self.client.post('/api/v1/meetups', json=meetup, headers=self.headers)
         self.client.post('/api/v1/meetups', json=meetup2, headers=self.headers)
 
-        res = self.client.get('/api/v1/meetups/upcoming')
+        res = self.client.get('/api/v1/meetups')
         data = res.get_json()
 
         self.assertEqual(res.status_code, 200)
