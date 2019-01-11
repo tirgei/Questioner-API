@@ -14,6 +14,15 @@ class TestUser(BaseTest):
         users.clear()
         super().tearDown()
 
+    def test_landing(self):
+        """ Test landing endpoint """
+        res = self.client.get('/index')
+        data = res.get_json()
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['status'], 200)
+        self.assertEqual(data['message'], 'Welcome to Questioner')
+
     def test_index(self):
         """ Test index """
         res = self.client.get('/api/v1/index')
@@ -22,6 +31,7 @@ class TestUser(BaseTest):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['status'], 200)
         self.assertEqual(data['message'], 'Welcome to Questioner')
+    
 
     def test_signup_no_data(self):
         """ Test sign up with no data sent """
