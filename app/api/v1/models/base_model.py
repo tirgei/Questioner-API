@@ -28,4 +28,8 @@ class Model(object):
     def all(self):
         """ Function to fetch all items """
         return self.collection
-        
+
+    def delete(self, id):
+        """ Function to delete item """
+        item = self.find('id', id)
+        self.collection.remove(item)
