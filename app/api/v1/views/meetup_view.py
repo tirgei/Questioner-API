@@ -44,6 +44,13 @@ def fetch_upcoming_meetups():
     result = MeetupSchema(many=True).dump(meetups).data
     return jsonify({'status':200, 'data':result}), 200
 
+@v1.route('/meetups', methods=['GET'])
+def fetch_all_meetups():
+    """ Endpoint to fetch all meetups """
+    meetups = db.all()
+    result = MeetupSchema(many=True).dump(meetups).data
+    return jsonify({'status':200, 'data':result}), 200
+
 @v1.route('/meetups/<int:meetup_id>/<string:rsvps>', methods=['POST'])
 def rspvs_meetup(meetup_id, rsvps):
     """ Endpoint to RSVP to meetup """
