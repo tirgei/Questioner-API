@@ -105,6 +105,18 @@ class TestUser(BaseTest):
         self.assertEqual(data['status'], 400)
         self.assertEqual(data['message'], 'Invalid data. Please fill all required fields')
 
+    def test_signup_short_password(self):
+        """ Test signup with short password """
+        # Update user with invalid password
+        self.user.update({'password': 'asad'})
+
+        res = self.client.post('/api/v1/register', json=self.user)
+        data = res.get_json()
+
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(data['status'], 400)
+        self.assertEqual(data['message'], 'Invalid data. Please fill all required fields')
+
     def test_signup(self):
         """ Test sign up with correct data """
         res = self.client.post('/api/v1/register', json=self.user)
@@ -211,6 +223,18 @@ class TestUser(BaseTest):
         self.assertEqual(res.status_code, 400)
         self.assertEqual(data['status'], 400)
         self.assertEqual(data['message'], 'Invalid credentials')
+
+    def test_login_invalid_password(self):
+        """ Test login with invalid password """
+        # Remove username
+        self.super_user.update({'password': 'asfdgfdngf'})
+
+        res = self.client.post('/api/v1/login', json=self.super_user)
+        data = res.get_json()
+
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(data['status'], 400)
+        self.assertEqual(data['message'], 'Invalid data. Please fill all required fields')
 
     def test_refresh_access_token_no_token_passed(self):
         """ Test refresh access token without passing refresh token"""
