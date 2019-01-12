@@ -84,6 +84,9 @@ $ pytest --cov=app
 | **POST** | `/api/v1/questions` | Post a question to a specific meetup |
 | **PATCH** | `/api/v1/questions/<int:question_id>/upvote` | Upvote a question |
 | **PATCH** | `/api/v1/questions/<int:question_id>/downvote` | Downvote a question |
+| **GET** | `/api/v1/meetups/<int:meetup_id>/question` | Fetch all questions for a meetup |
+| **POST** | `/api/v1/questions/<int:question_id/comments` | Post a comment to a question |
+| **GET** | `/api/v1/questions/<int:question_id>/comments` | Fetch all comments for a question |
 
 ## Author
 
