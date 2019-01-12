@@ -147,3 +147,24 @@ class TestQuestions(BaseTest):
         self.assertEqual(data['message'], 'Question downvoted successfully')
         self.assertEqual(data['data']['votes'], -1)
 
+    def test_fetch_all_questions_meetup_not_created(self):
+        """ Test fetch all questions for a meetup that doesn't exist """
+        res = self.client.get('/api/v1/meetups/13/questions')
+        data = res.get_json()
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['status'], 404)
+        self.assertEqual(data['message'], 'Meetup not found')
+
+    def test_fetch_all_questions(self):
+        """ Test fetch all questions for a meetup """
+        self.client.post('/api/v1/questions', json=self.question)
+        self.client.post('/api/v1/questions', json=self.question_2)
+
+        res = self.client.get('/api/v1/meetups/1/questions')
+        data = res.get_json()
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['status'], 200)
+        self.assertEqual(len(data['data']), 2)
+
