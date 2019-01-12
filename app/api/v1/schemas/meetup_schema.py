@@ -10,3 +10,4 @@ class MeetupSchema(Schema):
     happening_on = fields.Str(required=True, validate=(required))
     tags = fields.List(fields.Str(), required=False)
     images = fields.List(fields.Str(), required=False)
+    user_id = fields.Int(dump_only=True)

@@ -4,11 +4,13 @@ from ..schemas.question_schema import QuestionSchema
 from ..models.question_model import Question
 from ..models.meetup_model import Meetup
 from marshmallow import ValidationError
+from flask_jwt_extended import (jwt_required, get_jwt_identity)
 
 db = Question()
 meetups_db = Meetup()
 
 @v1.route('/questions', methods=['POST'])
+@jwt_required
 def post_question():
     """ Endpoint to post question """
     meetup_data = request.get_json()
@@ -19,7 +21,7 @@ def post_question():
 
     # Check if meetup exists
     try:
-        meetup = meetup_data['meetup']
+        meetup = meetup_data['meetup_id']
         if not meetups_db.exists('id', meetup):
             abort(make_response(jsonify({'status': 404, 'message': 'Meetup not found'}), 404))
     except:
@@ -32,6 +34,7 @@ def post_question():
         abort(make_response(jsonify({'status': 400, 'message' : 'Invalid data. Please fill all required fields', 'errors': errors.messages}), 400))
 
     # Save question and return response
+    data['user_id'] = get_jwt_identity()
     question = db.save(data)
     result = QuestionSchema().dump(question)
     return jsonify({'status': 201, 'message': 'Question posted successfully', 'data': result}), 201

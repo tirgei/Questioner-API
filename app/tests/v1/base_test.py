@@ -1,5 +1,6 @@
 import unittest
 from app import create_app
+from app.api.v1.models.user_model import users
 
 class BaseTest(unittest.TestCase):
     """ Base class for Tests """
@@ -20,6 +21,7 @@ class BaseTest(unittest.TestCase):
 
     def tearDown(self):
         self.app = None
+        users.clear()
 
     def register(self):
         """ Function to sign up user and get access token """
