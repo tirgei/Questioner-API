@@ -3,6 +3,7 @@ from ...v1 import version_1 as v1
 from ..schemas.meetup_schema import MeetupSchema
 from ..models.meetup_model import Meetup
 from flask_jwt_extended import (jwt_required, get_jwt_identity)
+from marshmallow import ValidationError
 
 db = Meetup()
 
@@ -16,13 +17,14 @@ def create_meetup():
         abort(make_response(jsonify({'status': 400, 'message': 'No data provided'}), 400))
 
     # Check if request is valid
-    data, errors = MeetupSchema().load(json_data)
-    if errors:
-        abort(make_response(jsonify({'status': 400, 'message' : 'Invalid data. Please fill all required fields', 'errors': errors}), 400))
+    try:
+        data = MeetupSchema().load(json_data)
+    except ValidationError as errors:
+        abort(make_response(jsonify({'status': 400, 'message' : 'Invalid data. Please fill all required fields', 'errors': errors.messages}), 400))
 
     # Save new meetup and return response
     new_meetup = db.save(data)
-    result = MeetupSchema().dump(new_meetup).data
+    result = MeetupSchema().dump(new_meetup)
     return jsonify({'status': 201, 'message': 'Meetup created successfully', 'data': [result]}), 201
 
 @v1.route('/meetups/<int:meetup_id>', methods=['GET'])
@@ -34,21 +36,21 @@ def fetch_meetup(meetup_id):
 
     # Get meetups 
     meetup = db.find('id', meetup_id)
-    result = MeetupSchema().dump(meetup).data
+    result = MeetupSchema().dump(meetup)
     return jsonify({'status':200, 'data':result}), 200
 
 @v1.route('/meetups/upcoming', methods=['GET'])
 def fetch_upcoming_meetups():
     """ Endpoint to fetch all meetups """
     meetups = db.all()
-    result = MeetupSchema(many=True).dump(meetups).data
+    result = MeetupSchema(many=True).dump(meetups)
     return jsonify({'status':200, 'data':result}), 200
 
 @v1.route('/meetups', methods=['GET'])
 def fetch_all_meetups():
     """ Endpoint to fetch all meetups """
     meetups = db.all()
-    result = MeetupSchema(many=True).dump(meetups).data
+    result = MeetupSchema(many=True).dump(meetups)
     return jsonify({'status':200, 'data':result}), 200
 
 @v1.route('/meetups/<int:meetup_id>/<string:rsvps>', methods=['POST'])
