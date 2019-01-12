@@ -6,4 +6,7 @@ class CommentSchema(Schema):
 
     id = fields.Int(dump_only=True)
     body = fields.Str(required=True, validate=(required))
-    user = fields.Int(required=False)
+    user_id = fields.Int(dump_only=True)
+    question_id = fields.Int(dump_only=True)
+    created_on = fields.DateTime(dump_only=True)
+    modified_on = fields.DateTime(dump_only=True)

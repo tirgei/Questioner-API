@@ -4,11 +4,13 @@ from ..schemas.comment_schema import CommentSchema
 from ..models.comment_model import Comment
 from ..models.question_model import Question
 from marshmallow import ValidationError
+from flask_jwt_extended import (jwt_required, get_jwt_identity)
 
 db = Comment()
 questions_db = Question()
 
 @v1.route('/questions/<int:question_id>/comments', methods=['POST'])
+@jwt_required
 def post_comment(question_id):
     """ Endpoint to post comment to meetup question """
     comment_data = request.get_json()
@@ -28,6 +30,8 @@ def post_comment(question_id):
         abort(make_response(jsonify({'status': 400, 'message' : 'Invalid data. Please fill all required fields', 'errors': errors.messages}), 400))
 
     # Save question and return response
+    data['user_id'] = get_jwt_identity()
+    data['question_id'] = question_id
     comment = db.save(data)
     result = CommentSchema().dump(comment)
     return jsonify({'status': 201, 'message': 'Comment posted successfully', 'data': result}), 201

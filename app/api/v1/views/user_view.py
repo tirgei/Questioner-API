@@ -89,7 +89,8 @@ def login():
         'status': 200,
         'message': 'User logged in successfully',
         'access_token': access_token,
-        'refresh_token': refresh_token
+        'refresh_token': refresh_token,
+        'user_id': user['id']
         }), 200
 
 @v1.route('/refresh-token', methods=['POST'])

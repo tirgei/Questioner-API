@@ -20,8 +20,7 @@ class TestComments(BaseTest):
         self.question = {
             'title' : 'Intro to python',
             'body' : 'Are we covering the basics?',
-            'meetup' : 1,
-            'created_by' : 4
+            'meetup_id' : 1
         }
 
         self.comment = {
@@ -32,10 +31,13 @@ class TestComments(BaseTest):
             'body' : 'Yeah.. they should especially do tests'
         }
 
-        self.client.post('/api/v1/meetups', json=self.meetup)
-        self.client.post('/api/v1/questions', json=self.question)
+        # Register user and get access_token
+        super().register()
+        self.headers = {'Authorization': 'Bearer {}'.format(self.access_token)}
 
-        self.headers = {'Content-Type': 'application/json'}
+        # Create meetup and question to test with
+        self.client.post('/api/v1/meetups', json=self.meetup, headers=self.headers)
+        self.client.post('/api/v1/questions', json=self.question, headers=self.headers)
 
     def tearDown(self):
         """ Destroy initialized variables """
@@ -45,7 +47,7 @@ class TestComments(BaseTest):
 
     def test_post_comment_question_not_posted(self):
         """ Test post comment to a question that hasn't been posted """
-        res = self.client.post('/api/v1/questions/3/comments')
+        res = self.client.post('/api/v1/questions/3/comments', headers=self.headers)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 404)
@@ -54,7 +56,7 @@ class TestComments(BaseTest):
 
     def test_post_comment_question_no_data(self):
         """ Test post comment without question data """
-        res = self.client.post('/api/v1/questions/1/comments')
+        res = self.client.post('/api/v1/questions/1/comments', headers=self.headers)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 400)
@@ -66,7 +68,7 @@ class TestComments(BaseTest):
         # Clear comment
         self.comment.clear()
 
-        res = self.client.post('/api/v1/questions/1/comments', json=json.dumps(self.comment))
+        res = self.client.post('/api/v1/questions/1/comments', json=json.dumps(self.comment), headers=self.headers)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 400)
@@ -75,7 +77,7 @@ class TestComments(BaseTest):
 
     def test_post_comment(self):
         """ Test post comment successfully """
-        res = self.client.post('/api/v1/questions/1/comments', json=self.comment)
+        res = self.client.post('/api/v1/questions/1/comments', json=self.comment, headers=self.headers)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 201)
@@ -93,8 +95,8 @@ class TestComments(BaseTest):
 
     def test_fetch_all_comments(self):
         """ Test fetch all comments for a question """
-        self.client.post('/api/v1/questions/1/comments', json=self.comment)
-        self.client.post('/api/v1/questions/1/comments', json=self.comment_2)
+        self.client.post('/api/v1/questions/1/comments', json=self.comment, headers=self.headers)
+        self.client.post('/api/v1/questions/1/comments', json=self.comment_2, headers=self.headers)
 
         res = self.client.get('/api/v1/questions/1/comments')
         data = res.get_json()
