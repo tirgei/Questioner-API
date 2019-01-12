@@ -38,7 +38,7 @@ class TestMeetups(BaseTest):
         }
 
     def tearDown(self):
-        """ Desdtroy initialized variables """
+        """ Destroy initialized variables """
         meetups.clear()
         super().tearDown()
 

@@ -8,23 +8,22 @@ class BaseTest(unittest.TestCase):
         self.app = create_app('testing')
         self.client = self.app.test_client()
 
+        self.super_user = {
+            'firstname' : 'John',
+            'lastname' : 'Doe',
+            'othername' : 'Doe',
+            'username' : 'doe',
+            'email' : 'doe@gmail.com',
+            'password' : 'asfD3#sdg',
+            'phone_number' : '0712345678'
+        }
+
     def tearDown(self):
         self.app = None
 
     def register(self):
         """ Function to sign up user and get access token """
-        # Register user
-        user = {
-            'firstname' : 'Vincent',
-            'lastname' : 'Tirgei',
-            'othername' : 'Doe',
-            'username' : 'tirgeiv',
-            'email' : 'tirgeiv@gmail.com',
-            'password' : 'asfD3#sdg',
-            'phone_number' : '0712345678'
-        }
-
-        res = self.client.post('/api/v1/register', json=user, headers={'Content-Type': 'application/json'})
+        res = self.client.post('/api/v1/register', json=self.super_user)
         data = res.get_json()
 
         self.access_token = data['access_token']
