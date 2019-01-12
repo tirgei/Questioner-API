@@ -1,4 +1,3 @@
-from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..utils.utils import generate_id
 from .base_model import Model
@@ -18,6 +17,7 @@ class User(Model):
         data['is_admin'] = False
         return super().save(data)
 
-    def checkpassword(self, hash, password):
+    @staticmethod
+    def checkpassword(hashed_password, password):
         """ Function to check if passwords match """
-        return check_password_hash(hash, password)
+        return check_password_hash(hashed_password, password)

@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields, post_dump
+from marshmallow import Schema, fields
 from ..utils.validator import required
 
 class MeetupSchema(Schema):

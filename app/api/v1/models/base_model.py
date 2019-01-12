@@ -1,5 +1,4 @@
 from datetime import datetime
-from ..utils.utils import generate_id
 
 class Model(object):
     """ Base Model class for objects """

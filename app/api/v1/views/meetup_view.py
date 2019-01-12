@@ -2,7 +2,6 @@ from flask import jsonify, request, abort, make_response
 from ...v1 import version_1 as v1
 from ..schemas.meetup_schema import MeetupSchema
 from ..models.meetup_model import Meetup
-from flask_jwt_extended import (jwt_required, get_jwt_identity)
 from marshmallow import ValidationError
 
 db = Meetup()

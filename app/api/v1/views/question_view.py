@@ -2,10 +2,11 @@ from flask import jsonify, request, abort, make_response
 from ...v1 import version_1 as v1
 from ..schemas.question_schema import QuestionSchema
 from ..models.question_model import Question
-from flask_jwt_extended import (jwt_required, get_jwt_identity)
+from ..models.meetup_model import Meetup
 from marshmallow import ValidationError
 
 db = Question()
+meetups_db = Meetup()
 
 @v1.route('/questions', methods=['POST'])
 def post_question():
@@ -15,6 +16,14 @@ def post_question():
     # No data has been provided
     if not meetup_data:
         abort(make_response(jsonify({'status': 400, 'message': 'No data provided'}), 400))
+
+    # Check if meetup exists
+    try:
+        meetup = meetup_data['meetup']
+        if not meetups_db.exists('id', meetup):
+            abort(make_response(jsonify({'status': 404, 'message': 'Meetup not found'}), 404))
+    except:
+        abort(make_response(jsonify({'status': 404, 'message': 'Meetup not found'}), 404))
 
     # Check if request is valid
     try:

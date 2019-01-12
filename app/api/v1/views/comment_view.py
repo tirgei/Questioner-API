@@ -3,7 +3,6 @@ from ...v1 import version_1 as v1
 from ..schemas.comment_schema import CommentSchema
 from ..models.comment_model import Comment
 from ..models.question_model import Question
-from flask_jwt_extended import (jwt_required, get_jwt_identity)
 from marshmallow import ValidationError
 
 db = Comment()

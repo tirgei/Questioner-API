@@ -45,10 +45,10 @@ def register():
     access_token = create_access_token(identity=new_user['id'], fresh=True)
     refresh_token = create_refresh_token(identity=new_user['id'])
     return jsonify({
-        'status': 201, 
-        'message' : 'User created successfully', 
-        'data': result, 
-        'access_token' : access_token, 
+        'status': 201,
+        'message' : 'User created successfully',
+        'data': result,
+        'access_token' : access_token,
         'refresh_token' : refresh_token
         }), 201
 
@@ -86,7 +86,7 @@ def login():
     access_token = create_access_token(identity=user['id'], fresh=True)
     refresh_token = create_refresh_token(identity=True)
     return jsonify({
-        'status': 200, 
+        'status': 200,
         'message': 'User logged in successfully',
         'access_token': access_token,
         'refresh_token': refresh_token
@@ -106,10 +106,7 @@ def logout():
     """ Endpoint to logout user """
     user_jti = get_raw_jwt()['jti']
 
-    try:
-        RevokedTokenModel().add(user_jti)
-        return jsonify({'status': 200, 'message': 'Logged out successfully'}), 200
-    except:
-        abort(make_response(jsonify({"status": 500, "message": "Error deleting account"})))
+    RevokedTokenModel().add(user_jti)
+    return jsonify({'status': 200, 'message': 'Logged out successfully'}), 200
 
 

@@ -10,10 +10,17 @@ class TestComments(BaseTest):
         """ Initialize variables to be used for tests """
         super().setUp()
 
+        self.meetup = {
+            'topic' : 'Leveling up with Python',
+            'location' : 'Andela HQ, Nairobi',
+            'happening_on' : '08/01/2019',
+            'tags' : ['python', 'flask']
+        }
+
         self.question = {
             'title' : 'Intro to python',
             'body' : 'Are we covering the basics?',
-            'meetup' : 2,
+            'meetup' : 1,
             'created_by' : 4
         }
 
@@ -21,7 +28,8 @@ class TestComments(BaseTest):
             'body' : 'Should include tests in the agenda too'
         }
 
-        self.comment_empty = {}
+        self.client.post('/api/v1/meetups', json=self.meetup)
+        self.client.post('/api/v1/questions', json=self.question)
 
         self.headers = {'Content-Type': 'application/json'}
 
@@ -42,9 +50,6 @@ class TestComments(BaseTest):
 
     def test_post_comment_question_no_data(self):
         """ Test post comment without question data """
-        # Post question
-        self.client.post('/api/v1/questions', json=self.question, headers=self.headers)
-
         res = self.client.post('/api/v1/questions/1/comments')
         data = res.get_json()
 
@@ -54,10 +59,10 @@ class TestComments(BaseTest):
 
     def test_post_comment_question_empty_data(self):
         """ Test post comment with empty data """
-        # Post question
-        self.client.post('/api/v1/questions', json=self.question, headers=self.headers)
+        # Clear comment
+        self.comment.clear()
 
-        res = self.client.post('/api/v1/questions/1/comments', json=json.dumps(self.comment_empty), headers=self.headers)
+        res = self.client.post('/api/v1/questions/1/comments', json=json.dumps(self.comment), headers=self.headers)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 400)
@@ -66,8 +71,6 @@ class TestComments(BaseTest):
 
     def test_post_comment(self):
         """ Test post comment successfully """
-        self.client.post('/api/v1/questions', json=self.question, headers=self.headers)
-
         res = self.client.post('/api/v1/questions/1/comments', json=self.comment, headers=self.headers)
         data = res.get_json()
 
