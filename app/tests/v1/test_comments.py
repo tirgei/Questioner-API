@@ -28,6 +28,10 @@ class TestComments(BaseTest):
             'body' : 'Should include tests in the agenda too'
         }
 
+        self.comment_2 = {
+            'body' : 'Yeah.. they should especially do tests'
+        }
+
         self.client.post('/api/v1/meetups', json=self.meetup)
         self.client.post('/api/v1/questions', json=self.question)
 
@@ -62,7 +66,7 @@ class TestComments(BaseTest):
         # Clear comment
         self.comment.clear()
 
-        res = self.client.post('/api/v1/questions/1/comments', json=json.dumps(self.comment), headers=self.headers)
+        res = self.client.post('/api/v1/questions/1/comments', json=json.dumps(self.comment))
         data = res.get_json()
 
         self.assertEqual(res.status_code, 400)
@@ -71,9 +75,30 @@ class TestComments(BaseTest):
 
     def test_post_comment(self):
         """ Test post comment successfully """
-        res = self.client.post('/api/v1/questions/1/comments', json=self.comment, headers=self.headers)
+        res = self.client.post('/api/v1/questions/1/comments', json=self.comment)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 201)
         self.assertEqual(data['status'], 201)
         self.assertEqual(data['message'], 'Comment posted successfully')
+
+    def test_fetch_all_comments_question_not_posted(self):
+        """ Test fetch all comments for question that doesn't exist """
+        res = self.client.get('/api/v1/questions/5/comments')
+        data = res.get_json()
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['status'], 404)
+        self.assertEqual(data['message'], 'Question not found')
+
+    def test_fetch_all_comments(self):
+        """ Test fetch all comments for a question """
+        self.client.post('/api/v1/questions/1/comments', json=self.comment)
+        self.client.post('/api/v1/questions/1/comments', json=self.comment_2)
+
+        res = self.client.get('/api/v1/questions/1/comments')
+        data = res.get_json()
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['status'], 200)
+        self.assertEqual(len(data['data']), 2)
