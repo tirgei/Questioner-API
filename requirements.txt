@@ -17,7 +17,7 @@ itsdangerous==1.1.0
 Jinja2==2.10
 lazy-object-proxy==1.3.1
 MarkupSafe==1.1.0
-marshmallow==2.17.0
+marshmallow==3.0.0rc2
 mccabe==0.6.1
 more-itertools==5.0.0
 pluggy==0.8.0

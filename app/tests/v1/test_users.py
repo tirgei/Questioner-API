@@ -9,6 +9,21 @@ class TestUser(BaseTest):
         """ Initialize variables to be used for user tests """
         super().setUp()
 
+        self.user = {
+            'firstname' : 'Vincent',
+            'lastname' : 'Tirgei',
+            'othername' : 'Kip',
+            'username' : 'tirgeiv',
+            'email' : 'tirgeiv@gmail.com',
+            'password' : 'asfD3#sdg',
+            'phone_number' : '0712345678'
+        }
+
+        super().register()
+
+        self.headers = {'Authorization': 'Bearer {}'.format(self.access_token)}
+
+
     def tearDown(self):
         """ Destroy initialized variables """
         users.clear()
@@ -44,9 +59,10 @@ class TestUser(BaseTest):
 
     def test_signup_empty_data(self):
         """ Test sign up with empty data sent """
-        user = {}
-
-        res = self.client.post('/api/v1/register', json=json.dumps(user), headers={'Content-Type': 'application/json'})
+        # Clear user 
+        self.user.clear()
+        
+        res = self.client.post('/api/v1/register', json=json.dumps(self.user))
         data = res.get_json()
 
         self.assertEqual(res.status_code, 400)
@@ -55,13 +71,10 @@ class TestUser(BaseTest):
 
     def test_signup_missing_fields(self):
         """ Test signup with missing fields in data sent """
-        user = {
-            'firstname' : 'Vincent',
-            'lastname' : 'Tirgei',
-            'password' : 'asfsgsdg'
-        }
+        # Remove username 
+        self.user.pop('username', None)
 
-        res = self.client.post('/api/v1/register', json=user, headers={'Content-Type': 'application/json'})
+        res = self.client.post('/api/v1/register', json=self.user)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 400)
@@ -70,18 +83,10 @@ class TestUser(BaseTest):
 
     def test_signup_invalid_email(self):
         """ Test sign up with invalid email """
+        # Update user with invalid email
+        self.user.update({'email': 'tirgeic'})
 
-        user = {
-            'firstname' : 'Vincent',
-            'lastname' : 'Tirgei',
-            'othername' : 'Doe',
-            'username' : 'tirgei',
-            'email' : 'tirgei',
-            'password' : 'asfsgsdg',
-            'phone_number' : '0712345678'
-        }
-
-        res = self.client.post('/api/v1/register', json=user, headers={'Content-Type': 'application/json'})
+        res = self.client.post('/api/v1/register', json=self.user)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 400)
@@ -90,18 +95,10 @@ class TestUser(BaseTest):
 
     def test_signup_invalid_password(self):
         """ Test signup with invalid password """
+        # Update user with invalid password
+        self.user.update({'password': 'afsdgdfhd'})
 
-        user = {
-            'firstname' : 'Vincent',
-            'lastname' : 'Tirgei',
-            'othername' : 'Doe',
-            'username' : 'tirgei',
-            'email' : 'tirgei@gmail.com',
-            'password' : 'asfsgsdg',
-            'phone_number' : '0712345678'
-        }
-
-        res = self.client.post('/api/v1/register', json=user, headers={'Content-Type': 'application/json'})
+        res = self.client.post('/api/v1/register', json=self.user)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 400)
@@ -110,57 +107,30 @@ class TestUser(BaseTest):
 
     def test_signup(self):
         """ Test sign up with correct data """
-
-        user = {
-            'firstname' : 'Vincent',
-            'lastname' : 'Tirgei',
-            'othername' : 'Doe',
-            'username' : 'tirgei',
-            'email' : 'tirgei@gmail.com',
-            'password' : 'asfD3#sdg',
-            'phone_number' : '0712345678'
-        }
-
-        res = self.client.post('/api/v1/register', json=user, headers={'Content-Type': 'application/json'})
+        res = self.client.post('/api/v1/register', json=self.user)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 201)
         self.assertEqual(data['status'], 201)
         self.assertEqual(data['message'], 'User created successfully')
-        self.assertEqual(data['data']['username'], user['username'])
+        self.assertEqual(data['data']['username'], self.user['username'])
 
     def test_signup_existing_email(self):
         """ Test sign up with existing email """
-
-        # Create new user and test response
-        user_1 = {
-            'firstname' : 'John',
-            'lastname' : 'Doe',
-            'othername' : 'Oketch',
-            'username' : 'joketch',
-            'email' : 'jd@gmail.com',
-            'password' : 'asfD3#sdg',
-            'phone_number' : '0712345678'
-        }
-
-        res_1 = self.client.post('/api/v1/register', json=user_1, headers={'Content-Type': 'application/json'})
+        res_1 = self.client.post('/api/v1/register', json=self.user)
         data_1 = res_1.get_json()
 
         self.assertEqual(res_1.status_code, 201)
         self.assertEqual(data_1['status'], 201)
 
-        # Create another user with same email
-        user_2 = {
+        # Set different names for user
+        self.user.update({
             'firstname' : 'Jane',
-            'lastname' : 'Dilly',
-            'othername' : 'Dudley',
-            'username' : 'dilly',
-            'email' : 'jd@gmail.com',
-            'password' : 'asfD3#sdg',
-            'phone_number' : '0712345678'
-        }
+            'lastname' : 'Dreary',
+            'username' : 'jdreary'
+        })
 
-        res_2 = self.client.post('/api/v1/register', json=user_2, headers={'Content-Type': 'application/json'})
+        res_2 = self.client.post('/api/v1/register', json=self.user)
         data_2 = res_2.get_json()
 
         self.assertEqual(res_2.status_code, 409)
@@ -171,34 +141,20 @@ class TestUser(BaseTest):
         """ Test sign up with existing username """
 
         # Create new user and test response
-        user_1 = {
-            'firstname' : 'John',
-            'lastname' : 'Doe',
-            'othername' : 'Oketch',
-            'username' : 'doe',
-            'email' : 'john@gmail.com',
-            'password' : 'asfD3#sdg',
-            'phone_number' : '0712345678'
-        }
-
-        res_1 = self.client.post('/api/v1/register', json=user_1, headers={'Content-Type': 'application/json'})
+        res_1 = self.client.post('/api/v1/register', json=self.user)
         data_1 = res_1.get_json()
 
         self.assertEqual(res_1.status_code, 201)
         self.assertEqual(data_1['status'], 201)
 
-        # Create another user with same email
-        user_2 = {
+        # Set different names and email for user
+        self.user.update({
             'firstname' : 'Jane',
-            'lastname' : 'Dilly',
-            'othername' : 'Dudley',
-            'username' : 'doe',
-            'email' : 'jdoe@gmail.com',
-            'password' : 'asfD3#sdg',
-            'phone_number' : '0712345678'
-        }
+            'lastname' : 'Dreary',
+            'email' : 'jdreary@gmail.com'
+        })
 
-        res_2 = self.client.post('/api/v1/register', json=user_2, headers={'Content-Type': 'application/json'})
+        res_2 = self.client.post('/api/v1/register', json=self.user)
         data_2 = res_2.get_json()
 
         self.assertEqual(res_2.status_code, 409)
@@ -216,9 +172,10 @@ class TestUser(BaseTest):
 
     def test_login_empty_data(self):
         """ Test login with empty data provided """
-        user = {}
+        # Clear user
+        self.super_user.clear()
 
-        res = self.client.post('/api/v1/login', json=user, headers={'Content-Type': 'application/json'})
+        res = self.client.post('/api/v1/login', json=self.super_user)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 400)
@@ -227,12 +184,8 @@ class TestUser(BaseTest):
 
     def test_login_unregistered_user(self):
         """ Test login with unregistered user credentials """
-        user = {
-            'username' : 'mikey',
-            'password' : 'sfsf87#E'
-        }
-
-        res = self.client.post('/api/v1/login', json=user, headers={'Content-Type': 'application/json'})
+        # Set unregistered credentials
+        res = self.client.post('/api/v1/login', json=self.user)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 404)
@@ -241,57 +194,24 @@ class TestUser(BaseTest):
 
     def test_login(self):
         """ Test successfull login """
-        # Register user
-        user = {
-            'firstname' : 'Vincent',
-            'lastname' : 'Tirgei',
-            'othername' : 'Doe',
-            'username' : 'tirgeiv',
-            'email' : 'tirgeiv@gmail.com',
-            'password' : 'asfD3#sdg',
-            'phone_number' : '0712345678'
-        }
+        res = self.client.post('/api/v1/login', json=self.super_user)
+        data = res.get_json()
 
-        res_1 = self.client.post('/api/v1/register', json=user, headers={'Content-Type': 'application/json'})
-        data_1 = res_1.get_json()
-
-        self.assertEqual(res_1.status_code, 201)
-        self.assertEqual(data_1['status'], 201)
-
-        # Login user
-        res_2 = self.client.post('/api/v1/login', json={'username': 'tirgeiv', 'password': 'asfD3#sdg'}, headers={'Content-Type': 'application/json'})
-        data_2 = res_2.get_json()
-
-        self.assertEqual(res_2.status_code, 200)
-        self.assertEqual(data_2['status'], 200)
-        self.assertEqual(data_2['message'], 'User logged in successfully')
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['status'], 200)
+        self.assertEqual(data['message'], 'User logged in successfully')
 
     def test_login_no_username_provided(self):
         """ Test login with no username provided """
-        # Register user
-        user = {
-            'firstname' : 'Vincent',
-            'lastname' : 'Tirgei',
-            'othername' : 'Doe',
-            'username' : 'tirgeic',
-            'email' : 'tirgeic@gmail.com',
-            'password' : 'asfD3#sdg',
-            'phone_number' : '0712345678'
-        }
+        # Remove username
+        self.super_user.pop('username', None)
 
-        res_1 = self.client.post('/api/v1/register', json=user, headers={'Content-Type': 'application/json'})
-        data_1 = res_1.get_json()
+        res = self.client.post('/api/v1/login', json=self.super_user)
+        data = res.get_json()
 
-        self.assertEqual(res_1.status_code, 201)
-        self.assertEqual(data_1['status'], 201)
-
-        # Login user
-        res_2 = self.client.post('/api/v1/login', json={'password': 'asfD3#sdg'}, headers={'Content-Type': 'application/json'})
-        data_2 = res_2.get_json()
-
-        self.assertEqual(res_2.status_code, 400)
-        self.assertEqual(data_2['status'], 400)
-        self.assertEqual(data_2['message'], 'Invalid credentials')
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(data['status'], 400)
+        self.assertEqual(data['message'], 'Invalid credentials')
 
     def test_refresh_access_token_no_token_passed(self):
         """ Test refresh access token without passing refresh token"""
@@ -304,9 +224,7 @@ class TestUser(BaseTest):
 
     def test_refresh_access_token_passing_access_token(self):
         """ Test refresh access token passing access token """
-        super().register()
-
-        res = self.client.post('/api/v1/refresh-token', headers={'Authorization': 'Bearer {}'.format(self.access_token)})
+        res = self.client.post('/api/v1/refresh-token', headers=self.headers)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 422)
@@ -315,9 +233,10 @@ class TestUser(BaseTest):
 
     def test_refresh_access_token(self):
         """ Test refresh access token """
-        super().register()
+        # Set refresh token
+        self.headers.update({'Authorization': 'Bearer {}'.format(self.refresh_token)})
 
-        res = self.client.post('/api/v1/refresh-token', headers={'Authorization': 'Bearer {}'.format(self.refresh_token)})
+        res = self.client.post('/api/v1/refresh-token', headers=self.headers)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 200)
@@ -326,7 +245,6 @@ class TestUser(BaseTest):
 
     def test_logout_no_access_token(self):
         """ Test logout without access token """
-
         res = self.client.post('/api/v1/logout')
         data = res.get_json()
 
@@ -335,10 +253,10 @@ class TestUser(BaseTest):
 
     def test_logout_passing_refesh_token(self):
         """ Test logout passing refresh token """
+        # Set refresh token
+        self.headers.update({'Authorization': 'Bearer {}'.format(self.refresh_token)})
 
-        super().register()
-
-        res = self.client.post('/api/v1/logout', headers={'Authorization': 'Bearer {}'.format(self.refresh_token)})
+        res = self.client.post('/api/v1/logout', headers=self.headers)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 422)
@@ -346,9 +264,7 @@ class TestUser(BaseTest):
 
     def test_logout(self):
         """ Test logout successfully """
-        super().register()
-
-        res = self.client.post('/api/v1/logout', headers={'Authorization': 'Bearer {}'.format(self.access_token)})
+        res = self.client.post('/api/v1/logout', headers=self.headers)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 200)
@@ -357,14 +273,11 @@ class TestUser(BaseTest):
 
     def test_logout_revoked_token(self):
         """ Test logout without access token """
-        # Register user
-        super().register()
-
         # Logout user
-        self.client.post('/api/v1/logout', headers={'Authorization': 'Bearer {}'.format(self.access_token)})
+        self.client.post('/api/v1/logout', headers=self.headers)
 
         # Logout user again
-        res = self.client.post('/api/v1/logout', headers={'Authorization': 'Bearer {}'.format(self.access_token)})
+        res = self.client.post('/api/v1/logout', headers=self.headers)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 401)

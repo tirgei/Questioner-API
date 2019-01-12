@@ -9,6 +9,21 @@ class TestQuestions(BaseTest):
         """ Initialize variables to be used for tests """
         super().setUp()
 
+        self.question_empty = {}
+
+        self.question = {
+            'title' : 'Intro to python',
+            'body' : 'Are we covering the basics?',
+            'meetup' : 2,
+            'created_by' : 4
+        }
+
+        self.question_incomplete = {
+            'title' : 'Intro to python'
+        }
+
+        self.headers = {'Content-Type': 'application/json'}
+
     def tearDown(self):
         """ Destroy initialized variables after test """
         questions.clear()
@@ -25,9 +40,7 @@ class TestQuestions(BaseTest):
 
     def test_post_question_empty_data(self):
         """ Test post question with no data sent """
-        question = {}
-
-        res = self.client.post('/api/v1/questions', json=json.dumps(question), headers={'Content-Type': 'application/json'})
+        res = self.client.post('/api/v1/questions', json=json.dumps(self.question_empty), headers = self.headers)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 400)
@@ -37,11 +50,7 @@ class TestQuestions(BaseTest):
     def test_post_question_missing_fields(self):
         """ Test post question with missing fields in data sent """
         # Question with no body
-        question = {
-            'title' : 'Intro to python'
-        }
-
-        res = self.client.post('/api/v1/questions', json=question, headers={'Content-Type': 'application/json'})
+        res = self.client.post('/api/v1/questions', json=self.question_incomplete, headers = self.headers)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 400)
@@ -50,14 +59,7 @@ class TestQuestions(BaseTest):
 
     def test_post_question(self):
         """ Test post question successfully """
-        question = {
-            'title' : 'Intro to python',
-            'body' : 'Are we covering the basics?',
-            'meetup' : 2,
-            'created_by' : 4
-        }
-
-        res = self.client.post('/api/v1/questions', json=question, headers={'Content-Type': 'application/json'})
+        res = self.client.post('/api/v1/questions', json=self.question, headers=self.headers)
         data = res.get_json()
 
         self.assertEqual(res.status_code, 201)
@@ -75,14 +77,7 @@ class TestQuestions(BaseTest):
 
     def test_upvote_question(self):
         """ Test upvote question successfully """
-        question = {
-            'title' : 'Intro to python',
-            'body' : 'Are we covering the basics?',
-            'meetup' : 2,
-            'created_by' : 4
-        }
-
-        res_post = self.client.post('/api/v1/questions', json=question, headers={'Content-Type': 'application/json'})
+        res_post = self.client.post('/api/v1/questions', json=self.question, headers=self.headers)
         question_id = res_post.get_json()['data']['id']
 
         res = self.client.patch('/api/v1/questions/{}/upvote'.format(question_id))
@@ -104,17 +99,9 @@ class TestQuestions(BaseTest):
 
     def test_downvote_question(self):
         """ Test downvote question successfully """
-        question = {
-            'title' : 'Intro to python',
-            'body' : 'Are we covering the basics?',
-            'meetup' : 2,
-            'created_by' : 4
-        }
+        self.client.post('/api/v1/questions', json=self.question, headers=self.headers)
 
-        res_post = self.client.post('/api/v1/questions', json=question, headers={'Content-Type': 'application/json'})
-        question_id = res_post.get_json()['data']['id']
-
-        res = self.client.patch('/api/v1/questions/{}/downvote'.format(question_id))
+        res = self.client.patch('/api/v1/questions/1/downvote')
         data = res.get_json()
 
         self.assertEqual(res.status_code, 200)

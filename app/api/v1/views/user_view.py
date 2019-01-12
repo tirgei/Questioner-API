@@ -3,6 +3,7 @@ from ...v1 import version_1 as v1
 from ..schemas.user_schema import UserSchema
 from ..models.user_model import User
 from ..models.token_model import RevokedTokenModel
+from marshmallow import ValidationError
 from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required,
                              get_jwt_identity, jwt_refresh_token_required, get_raw_jwt)
 
@@ -23,9 +24,10 @@ def register():
         abort(make_response(jsonify({'status': 400, 'message': 'No data provided'}), 400))
 
     # Check if request is valid
-    data, errors = UserSchema().load(register_data)
-    if errors:
-        abort(make_response(jsonify({'status': 400, 'message' : 'Invalid data. Please fill all required fields', 'errors': errors}), 400))
+    try:
+        data = UserSchema().load(register_data)
+    except ValidationError as errors:
+        abort(make_response(jsonify({'status': 400, 'message' : 'Invalid data. Please fill all required fields', 'errors': errors.messages}), 400))
 
     # Check if username exists
     if next(filter(lambda u: u['username'] == data['username'], db.all()), None):
@@ -37,7 +39,7 @@ def register():
 
     # Save new user and get result
     new_user = db.save(data)
-    result = UserSchema(exclude=['password']).dump(new_user).data
+    result = UserSchema(exclude=['password']).dump(new_user)
 
     # Generate access and refresh tokens and return response
     access_token = create_access_token(identity=new_user['id'], fresh=True)
@@ -60,9 +62,10 @@ def login():
         abort(make_response(jsonify({'status': 400, 'message': 'No data provided'}), 400))
 
     # Check if credentials have been passed
-    data, errors = UserSchema().load(login_data, partial=True)
-    if errors:
-        abort(make_response(jsonify({'status': 400, 'message': 'Invalid data. Please fill all required fields', 'errors': errors}), 400))
+    try:
+        data = UserSchema().load(login_data, partial=True)
+    except ValidationError as errors:
+        abort(make_response(jsonify({'status': 400, 'message': 'Invalid data. Please fill all required fields', 'errors': errors.messages}), 400))
 
     try:
         username = data['username']
