@@ -62,3 +62,15 @@ def downvote_question(question_id):
     result = QuestionSchema().dump(question)
     return jsonify({'status': 200, 'message': 'Question downvoted successfully', 'data': result}), 200
 
+@v1.route('/meetups/<int:meetup_id>/questions', methods=['GET'])
+def fetch_all_questions(meetup_id):
+    """ Endpoint to fetch all questions for a specific meetup """
+
+    # Check if meetup exists
+    if not meetups_db.exists('id', meetup_id):
+        abort(make_response(jsonify({'status': 404, 'message': 'Meetup not found'}), 404))
+
+    # Return list of questions
+    questions = db.all()
+    result = QuestionSchema(many=True).dump(questions)
+    return jsonify({'status': 200, 'data': result}), 200
