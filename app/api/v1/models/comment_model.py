@@ -1,4 +1,3 @@
-from datetime import datetime
 from .base_model import Model
 from ..utils.utils import generate_id
 

@@ -41,4 +41,3 @@ def password(password):
 
     if sum(scores.values()) < 3:
         raise ValidationError(message)
-        

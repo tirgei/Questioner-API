@@ -59,7 +59,7 @@ class TestUser(BaseTest):
 
     def test_signup_empty_data(self):
         """ Test sign up with empty data sent """
-        # Clear user 
+        # Clear user
         self.user.clear()
         
         res = self.client.post('/api/v1/register', json=json.dumps(self.user))
@@ -71,7 +71,7 @@ class TestUser(BaseTest):
 
     def test_signup_missing_fields(self):
         """ Test signup with missing fields in data sent """
-        # Remove username 
+        # Remove username
         self.user.pop('username', None)
 
         res = self.client.post('/api/v1/register', json=self.user)
@@ -139,7 +139,6 @@ class TestUser(BaseTest):
 
     def test_signup_existing_username(self):
         """ Test sign up with existing username """
-
         # Create new user and test response
         res_1 = self.client.post('/api/v1/register', json=self.user)
         data_1 = res_1.get_json()
@@ -282,8 +281,6 @@ class TestUser(BaseTest):
 
         self.assertEqual(res.status_code, 401)
         self.assertEqual(data['msg'], 'Token has been revoked')
-    
-
 
 
     

@@ -2,10 +2,11 @@ from flask import jsonify, request, abort, make_response
 from ...v1 import version_1 as v1
 from ..schemas.question_schema import QuestionSchema
 from ..models.question_model import Question
-from flask_jwt_extended import (jwt_required, get_jwt_identity)
+from ..models.meetup_model import Meetup
 from marshmallow import ValidationError
 
 db = Question()
+meetups_db = Meetup()
 
 @v1.route('/questions', methods=['POST'])
 def post_question():
@@ -15,6 +16,14 @@ def post_question():
     # No data has been provided
     if not meetup_data:
         abort(make_response(jsonify({'status': 400, 'message': 'No data provided'}), 400))
+
+    # Check if meetup exists
+    try:
+        meetup = meetup_data['meetup']
+        if not meetups_db.exists('id', meetup):
+            abort(make_response(jsonify({'status': 404, 'message': 'Meetup not found'}), 404))
+    except:
+        abort(make_response(jsonify({'status': 404, 'message': 'Meetup not found'}), 404))
 
     # Check if request is valid
     try:
@@ -53,3 +62,15 @@ def downvote_question(question_id):
     result = QuestionSchema().dump(question)
     return jsonify({'status': 200, 'message': 'Question downvoted successfully', 'data': result}), 200
 
+@v1.route('/meetups/<int:meetup_id>/questions', methods=['GET'])
+def fetch_all_questions(meetup_id):
+    """ Endpoint to fetch all questions for a specific meetup """
+
+    # Check if meetup exists
+    if not meetups_db.exists('id', meetup_id):
+        abort(make_response(jsonify({'status': 404, 'message': 'Meetup not found'}), 404))
+
+    # Return list of questions
+    questions = db.all()
+    result = QuestionSchema(many=True).dump(questions)
+    return jsonify({'status': 200, 'data': result}), 200
