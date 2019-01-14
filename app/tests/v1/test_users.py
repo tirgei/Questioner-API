@@ -7,6 +7,7 @@ class TestUser(BaseTest):
 
     def setUp(self):
         """ Initialize variables to be used for user tests """
+
         super().setUp()
 
         self.user = {
@@ -26,11 +27,13 @@ class TestUser(BaseTest):
 
     def tearDown(self):
         """ Destroy initialized variables """
+
         users.clear()
         super().tearDown()
 
     def test_landing(self):
         """ Test landing endpoint """
+
         res = self.client.get('/index')
         data = res.get_json()
 
@@ -40,6 +43,7 @@ class TestUser(BaseTest):
 
     def test_index(self):
         """ Test index """
+
         res = self.client.get('/api/v1/')
         data = res.get_json()
 
@@ -50,6 +54,7 @@ class TestUser(BaseTest):
 
     def test_signup_no_data(self):
         """ Test sign up with no data sent """
+
         res = self.client.post('/api/v1/register')
         data = res.get_json()
 
@@ -59,7 +64,7 @@ class TestUser(BaseTest):
 
     def test_signup_empty_data(self):
         """ Test sign up with empty data sent """
-        # Clear user
+
         self.user.clear()
         
         res = self.client.post('/api/v1/register', json=json.dumps(self.user))
@@ -71,7 +76,7 @@ class TestUser(BaseTest):
 
     def test_signup_missing_fields(self):
         """ Test signup with missing fields in data sent """
-        # Remove username
+
         self.user.pop('username', None)
 
         res = self.client.post('/api/v1/register', json=self.user)
@@ -83,7 +88,7 @@ class TestUser(BaseTest):
 
     def test_signup_invalid_email(self):
         """ Test sign up with invalid email """
-        # Update user with invalid email
+
         self.user.update({'email': 'tirgeic'})
 
         res = self.client.post('/api/v1/register', json=self.user)
@@ -95,7 +100,7 @@ class TestUser(BaseTest):
 
     def test_signup_invalid_password(self):
         """ Test signup with invalid password """
-        # Update user with invalid password
+
         self.user.update({'password': 'afsdgdfhd'})
 
         res = self.client.post('/api/v1/register', json=self.user)
@@ -107,7 +112,7 @@ class TestUser(BaseTest):
 
     def test_signup_short_password(self):
         """ Test signup with short password """
-        # Update user with invalid password
+
         self.user.update({'password': 'asad'})
 
         res = self.client.post('/api/v1/register', json=self.user)
@@ -119,6 +124,7 @@ class TestUser(BaseTest):
 
     def test_signup(self):
         """ Test sign up with correct data """
+
         res = self.client.post('/api/v1/register', json=self.user)
         data = res.get_json()
 
@@ -129,13 +135,13 @@ class TestUser(BaseTest):
 
     def test_signup_existing_email(self):
         """ Test sign up with existing email """
+
         res_1 = self.client.post('/api/v1/register', json=self.user)
         data_1 = res_1.get_json()
 
         self.assertEqual(res_1.status_code, 201)
         self.assertEqual(data_1['status'], 201)
 
-        # Set different names for user
         self.user.update({
             'firstname' : 'Jane',
             'lastname' : 'Dreary',
@@ -151,14 +157,13 @@ class TestUser(BaseTest):
 
     def test_signup_existing_username(self):
         """ Test sign up with existing username """
-        # Create new user and test response
+
         res_1 = self.client.post('/api/v1/register', json=self.user)
         data_1 = res_1.get_json()
 
         self.assertEqual(res_1.status_code, 201)
         self.assertEqual(data_1['status'], 201)
 
-        # Set different names and email for user
         self.user.update({
             'firstname' : 'Jane',
             'lastname' : 'Dreary',
@@ -174,6 +179,7 @@ class TestUser(BaseTest):
 
     def test_login_no_data(self):
         """ Test login with no data provided """
+
         res = self.client.post('/api/v1/login')
         data = res.get_json()
 
@@ -183,7 +189,7 @@ class TestUser(BaseTest):
 
     def test_login_empty_data(self):
         """ Test login with empty data provided """
-        # Clear user
+
         self.super_user.clear()
 
         res = self.client.post('/api/v1/login', json=self.super_user)
@@ -195,7 +201,7 @@ class TestUser(BaseTest):
 
     def test_login_unregistered_user(self):
         """ Test login with unregistered user credentials """
-        # Set unregistered credentials
+
         res = self.client.post('/api/v1/login', json=self.user)
         data = res.get_json()
 
@@ -205,6 +211,7 @@ class TestUser(BaseTest):
 
     def test_login(self):
         """ Test successfull login """
+
         res = self.client.post('/api/v1/login', json=self.super_user)
         data = res.get_json()
 
@@ -214,7 +221,7 @@ class TestUser(BaseTest):
 
     def test_login_no_username_provided(self):
         """ Test login with no username provided """
-        # Remove username
+
         self.super_user.pop('username', None)
 
         res = self.client.post('/api/v1/login', json=self.super_user)
@@ -226,7 +233,7 @@ class TestUser(BaseTest):
 
     def test_login_invalid_password(self):
         """ Test login with invalid password """
-        # Remove username
+
         self.super_user.update({'password': 'asfdgfdngf'})
 
         res = self.client.post('/api/v1/login', json=self.super_user)
@@ -247,6 +254,7 @@ class TestUser(BaseTest):
 
     def test_refresh_access_token_passing_access_token(self):
         """ Test refresh access token passing access token """
+
         res = self.client.post('/api/v1/refresh-token', headers=self.headers)
         data = res.get_json()
 
@@ -255,8 +263,8 @@ class TestUser(BaseTest):
 
 
     def test_refresh_access_token(self):
-        """ Test refresh access token """
-        # Set refresh token
+        """ Test refresh access token successfully"""
+
         self.headers.update({'Authorization': 'Bearer {}'.format(self.refresh_token)})
 
         res = self.client.post('/api/v1/refresh-token', headers=self.headers)
@@ -268,6 +276,7 @@ class TestUser(BaseTest):
 
     def test_logout_no_access_token(self):
         """ Test logout without access token """
+
         res = self.client.post('/api/v1/logout')
         data = res.get_json()
 
@@ -276,7 +285,7 @@ class TestUser(BaseTest):
 
     def test_logout_passing_refesh_token(self):
         """ Test logout passing refresh token """
-        # Set refresh token
+
         self.headers.update({'Authorization': 'Bearer {}'.format(self.refresh_token)})
 
         res = self.client.post('/api/v1/logout', headers=self.headers)
@@ -287,6 +296,7 @@ class TestUser(BaseTest):
 
     def test_logout(self):
         """ Test logout successfully """
+
         res = self.client.post('/api/v1/logout', headers=self.headers)
         data = res.get_json()
 
@@ -296,10 +306,9 @@ class TestUser(BaseTest):
 
     def test_logout_revoked_token(self):
         """ Test logout without access token """
-        # Logout user
+
         self.client.post('/api/v1/logout', headers=self.headers)
 
-        # Logout user again
         res = self.client.post('/api/v1/logout', headers=self.headers)
         data = res.get_json()
 

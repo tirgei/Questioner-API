@@ -1,4 +1,7 @@
-""" Initiates blueprints for version 1 of the API """
+"""
+Register Resource endpoints for Api V1
+"""
+
 from flask import Blueprint
 from flask_restful import Api
 from .views.user_view import Index, Register, Login, Logout, RefreshToken
@@ -6,13 +9,10 @@ from .views.question_view import Question, QuestionUpvote, QuestionDownvote, Que
 from .views.meetup_view import Meetup, Meetups, MeetupsUpcoming, MeetupRsvp
 from .views.comment_view import Comment
 
-# Initialize v1 Blueprint
 version_1 = Blueprint('version_one', __name__, url_prefix='/api/v1')
 
-# Initialize Api
 api = Api(version_1)
 
-# Add resources
 api.add_resource(Index, '/')
 api.add_resource(Register, '/register')
 api.add_resource(Login, '/login')

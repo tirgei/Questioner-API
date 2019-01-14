@@ -13,19 +13,17 @@ class Meetups(Resource):
     @jwt_required
     def post(self):
         """ Endpoint to create meetup """
+
         json_data = request.get_json()
 
-        # No data has been provided
         if not json_data:
             return {'status': 400, 'message': 'No data provided'}, 400
 
-        # Check if request is valid
         try:
             data = MeetupSchema().load(json_data)
         except ValidationError as errors:
             return {'status': 400, 'message' : 'Invalid data. Please fill all required fields', 'errors': errors.messages}, 400
 
-        # Save new meetup and return response
         data['user_id'] = get_jwt_identity()
         new_meetup = db.save(data)
         result = MeetupSchema().dump(new_meetup)
@@ -33,6 +31,7 @@ class Meetups(Resource):
 
     def get(self):
         """ Endpoint to fetch all meetups """
+
         meetups = db.all()
         result = MeetupSchema(many=True).dump(meetups)
         return {'status':200, 'data':result}, 200
@@ -42,11 +41,10 @@ class Meetup(Resource):
 
     def get(self, meetup_id):
         """ Endpoint to fetch specific meetup """
-        # Check if meetup exists 
+
         if not db.exists('id', meetup_id):
             return {'status': 404, 'message': 'Meetup not found'}, 404
 
-        # Get meetups 
         meetup = db.find('id', meetup_id)
         result = MeetupSchema().dump(meetup)
         return {'status':200, 'data':result}, 200
@@ -54,11 +52,10 @@ class Meetup(Resource):
     @jwt_required
     def delete(self, meetup_id):
         """ Endpoint to delete meetup """
-        # Check if meetup exists 
+
         if not db.exists('id', meetup_id):
             return {'status': 404, 'message': 'Meetup not found'}, 404
 
-        # Get meetups 
         db.delete(meetup_id)
         return {'status':200, 'message': 'Meetup deleted successfully'}, 200
 
@@ -67,6 +64,7 @@ class MeetupsUpcoming(Resource):
 
     def get(self):
         """ Endpoint to fetch all meetups """
+
         meetups = db.all()
         result = MeetupSchema(many=True).dump(meetups)
         return {'status':200, 'data':result}, 200
@@ -79,11 +77,9 @@ class MeetupRsvp(Resource):
         """ Endpoint to RSVP to meetup """
         valid_responses = ('yes', 'no', 'maybe')
 
-        # Check if meetup exists
         if not db.exists('id', meetup_id):
             return {'status': 404, 'message': 'Meetup not found'}, 404
 
-        # Check if rsvp is valid
         if rsvp not in valid_responses:
             return {'status': 400, 'message': 'Invalid rsvp'}, 400
 

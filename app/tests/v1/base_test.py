@@ -25,6 +25,7 @@ class BaseTest(unittest.TestCase):
 
     def register(self):
         """ Function to sign up user and get access token """
+        
         res = self.client.post('/api/v1/register', json=self.super_user)
         data = res.get_json()
 
