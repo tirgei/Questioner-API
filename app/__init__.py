@@ -25,6 +25,22 @@ def create_app(config_name):
     @app.route('/')
     @app.route('/index')
     def index():
+        """ Endpoint for the landing page """
         return jsonify({'status': 200, 'message': 'Welcome to Questioner'})
+
+    @app.errorhandler(404)
+    def page_not_found(error):
+        """ Handler for error 404 """
+        return jsonify({'status': 404, 'message': 'Oops! The requested page was not found'}), 404
+
+    @app.errorhandler(405)
+    def method_not_allowed(error):
+        """ Handler for error 405 """
+        return jsonify({'status': 405, 'message': 'Method not allowed'}), 405
+
+    @app.errorhandler(Exception)
+    def unhandled_exception(error):
+        """ Handler for other error codes """
+        return jsonify({'status': 500, 'message': 'Could not complete your request'}), 500
 
     return app
