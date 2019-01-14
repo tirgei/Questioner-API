@@ -40,7 +40,7 @@ class TestUser(BaseTest):
 
     def test_index(self):
         """ Test index """
-        res = self.client.get('/api/v1/index')
+        res = self.client.get('/api/v1/')
         data = res.get_json()
 
         self.assertEqual(res.status_code, 200)
