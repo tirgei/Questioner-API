@@ -11,5 +11,6 @@ class Comment(Model):
 
     def save(self, data):
         """ Function to save new comment """
+        
         data['id'] = generate_id(self.collection)
         return super().save(data)

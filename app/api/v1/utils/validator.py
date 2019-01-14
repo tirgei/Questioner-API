@@ -2,7 +2,7 @@ import re
 from marshmallow import ValidationError
 
 def required(value):
-    """Validate that field under validation does not contain null value."""
+    """Validate that field under validation does not contain null value"""
 
     if isinstance(value, str):
         if not value.strip(' '):

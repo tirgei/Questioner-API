@@ -7,6 +7,7 @@ class TestQuestions(BaseTest):
 
     def setUp(self):
         """ Initialize variables to be used for tests """
+
         super().setUp()
 
         self.meetup = {
@@ -28,21 +29,20 @@ class TestQuestions(BaseTest):
             'meetup_id' : 1,
         }
 
-        # Register user and get access_token
         super().register()
         self.headers = {'Authorization': 'Bearer {}'.format(self.access_token)}
 
-        # Create meetup to be tested with
         self.client.post('/api/v1/meetups', json=self.meetup, headers=self.headers)
 
     def tearDown(self):
         """ Destroy initialized variables after test """
+
         questions.clear()
         super().tearDown()
 
     def test_post_question_meetup_not_created(self):
         """ Test post question to meetup that doesn't exist """
-        # Assign question meetup id that doesn't exist
+
         self.question.update({'meetup_id': 11})
 
         res = self.client.post('/api/v1/questions', json=self.question, headers=self.headers)
@@ -54,7 +54,7 @@ class TestQuestions(BaseTest):
 
     def test_post_question_without_meetup_id(self):
         """ Test post question to meetup that doesn't exist """
-        # Remove meetup id
+        
         self.question.pop('meetup_id', None)
 
         res = self.client.post('/api/v1/questions', json=self.question, headers=self.headers)
@@ -66,6 +66,7 @@ class TestQuestions(BaseTest):
 
     def post_question_no_data(self):
         """ Test post question with no data sent """
+
         res = self.client.post('/api/v1/questions', headers=self.headers)
         data = res.get_json()
 
@@ -75,7 +76,7 @@ class TestQuestions(BaseTest):
 
     def test_post_question_empty_data(self):
         """ Test post question with no data sent """
-        # Clear question
+
         self.question.clear()
 
         res = self.client.post('/api/v1/questions', json=self.question, headers=self.headers)
@@ -87,7 +88,7 @@ class TestQuestions(BaseTest):
 
     def test_post_question_missing_fields(self):
         """ Test post question with missing fields in data sent """
-        # Remove body from question
+
         self.question.pop('body', None)
 
         res = self.client.post('/api/v1/questions', json=self.question, headers=self.headers)
@@ -99,6 +100,7 @@ class TestQuestions(BaseTest):
 
     def test_post_question(self):
         """ Test post question successfully """
+
         res = self.client.post('/api/v1/questions', json=self.question, headers=self.headers)
         data = res.get_json()
 
@@ -108,6 +110,7 @@ class TestQuestions(BaseTest):
 
     def test_upvote_question_not_posted(self):
         """ Test upvote for question that hasn't been posted """
+
         res = self.client.patch('/api/v1/questions/3/upvote', headers=self.headers)
         data = res.get_json()
 
@@ -117,6 +120,7 @@ class TestQuestions(BaseTest):
 
     def test_upvote_question(self):
         """ Test upvote question successfully """
+
         self.client.post('/api/v1/questions', json=self.question, headers=self.headers)
 
         res = self.client.patch('/api/v1/questions/1/upvote', headers=self.headers)
@@ -129,6 +133,7 @@ class TestQuestions(BaseTest):
 
     def test_downvote_question_not_posted(self):
         """ Test downvote for question that hasn't been posted """
+
         res = self.client.patch('/api/v1/questions/3/downvote', headers=self.headers)
         data = res.get_json()
 
@@ -138,6 +143,7 @@ class TestQuestions(BaseTest):
 
     def test_downvote_question(self):
         """ Test downvote question successfully """
+
         self.client.post('/api/v1/questions', json=self.question, headers=self.headers)
 
         res = self.client.patch('/api/v1/questions/1/downvote', headers=self.headers)
@@ -150,6 +156,7 @@ class TestQuestions(BaseTest):
 
     def test_fetch_all_questions_meetup_not_created(self):
         """ Test fetch all questions for a meetup that doesn't exist """
+
         res = self.client.get('/api/v1/meetups/13/questions')
         data = res.get_json()
 
@@ -159,6 +166,7 @@ class TestQuestions(BaseTest):
 
     def test_fetch_all_questions(self):
         """ Test fetch all questions for a meetup """
+        
         self.client.post('/api/v1/questions', json=self.question, headers=self.headers)
         self.client.post('/api/v1/questions', json=self.question_2, headers=self.headers)
 

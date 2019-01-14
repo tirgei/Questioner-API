@@ -10,13 +10,15 @@ class Question(Model):
         super().__init__(questions)
 
     def save(self, data):
-        """ Function to save new meetup """
+        """ Function to save new question """
+
         data['id'] = generate_id(self.collection)
         data['votes'] = 0
         return super().save(data)
 
     def upvote(self, question_id):
         """ Function to upvote question """
+
         for question in questions:
             if question['id'] == question_id:
                 question['votes'] = question['votes']+1
@@ -25,6 +27,7 @@ class Question(Model):
 
     def downvote(self, question_id):
         """ Function to downvote question """
+        
         for question in questions:
             if question['id'] == question_id:
                 question['votes'] = question['votes']-1

@@ -8,6 +8,7 @@ class TestComments(BaseTest):
 
     def setUp(self):
         """ Initialize variables to be used for tests """
+
         super().setUp()
 
         self.meetup = {
@@ -31,22 +32,22 @@ class TestComments(BaseTest):
             'body' : 'Yeah.. they should especially do tests'
         }
 
-        # Register user and get access_token
         super().register()
         self.headers = {'Authorization': 'Bearer {}'.format(self.access_token)}
 
-        # Create meetup and question to test with
         self.client.post('/api/v1/meetups', json=self.meetup, headers=self.headers)
         self.client.post('/api/v1/questions', json=self.question, headers=self.headers)
 
     def tearDown(self):
         """ Destroy initialized variables """
+
         comments.clear()
         questions.clear()
         super().tearDown()
 
     def test_post_comment_question_not_posted(self):
         """ Test post comment to a question that hasn't been posted """
+
         res = self.client.post('/api/v1/questions/3/comments', headers=self.headers)
         data = res.get_json()
 
@@ -56,6 +57,7 @@ class TestComments(BaseTest):
 
     def test_post_comment_question_no_data(self):
         """ Test post comment without question data """
+
         res = self.client.post('/api/v1/questions/1/comments', headers=self.headers)
         data = res.get_json()
 
@@ -65,7 +67,7 @@ class TestComments(BaseTest):
 
     def test_post_comment_question_empty_data(self):
         """ Test post comment with empty data """
-        # Clear comment
+
         self.comment.clear()
 
         res = self.client.post('/api/v1/questions/1/comments', json=json.dumps(self.comment), headers=self.headers)
@@ -77,6 +79,7 @@ class TestComments(BaseTest):
 
     def test_post_comment(self):
         """ Test post comment successfully """
+
         res = self.client.post('/api/v1/questions/1/comments', json=self.comment, headers=self.headers)
         data = res.get_json()
 
@@ -86,6 +89,7 @@ class TestComments(BaseTest):
 
     def test_fetch_all_comments_question_not_posted(self):
         """ Test fetch all comments for question that doesn't exist """
+
         res = self.client.get('/api/v1/questions/5/comments')
         data = res.get_json()
 
@@ -95,6 +99,7 @@ class TestComments(BaseTest):
 
     def test_fetch_all_comments(self):
         """ Test fetch all comments for a question """
+        
         self.client.post('/api/v1/questions/1/comments', json=self.comment, headers=self.headers)
         self.client.post('/api/v1/questions/1/comments', json=self.comment_2, headers=self.headers)
 
