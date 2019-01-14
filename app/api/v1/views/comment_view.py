@@ -1,50 +1,51 @@
-from flask import jsonify, request, abort, make_response
-from ...v1 import version_1 as v1
+from flask import Response, jsonify, request, make_response
 from ..schemas.comment_schema import CommentSchema
-from ..models.comment_model import Comment
+from ..models.comment_model import Comment as CommentModel
 from ..models.question_model import Question
 from marshmallow import ValidationError
 from flask_jwt_extended import (jwt_required, get_jwt_identity)
+from flask_restful import Resource
 
-db = Comment()
+db = CommentModel()
 questions_db = Question()
 
-@v1.route('/questions/<int:question_id>/comments', methods=['POST'])
-@jwt_required
-def post_comment(question_id):
-    """ Endpoint to post comment to meetup question """
-    comment_data = request.get_json()
+class Comment(Resource):
+    """ Resource for comments endpoints """
 
-    # Check if question exists
-    if not questions_db.exists('id', question_id):
-        abort(make_response(jsonify({'status': 404, 'message': 'Question not found'}), 404))
+    @jwt_required
+    def post(self, question_id):
+        """ Endpoint to post comment to meetup question """
+        comment_data = request.get_json()
 
-    # Check if data exists
-    if not comment_data:
-        abort(make_response(jsonify({'status': 400, 'message': 'No data provided'}), 400))
+        # Check if question exists
+        if not questions_db.exists('id', question_id):
+            return {'status': 404, 'message': 'Question not found'}, 404
 
-    # Check if request is valid
-    try:
-        data = CommentSchema().load(comment_data)
-    except ValidationError as errors:
-        abort(make_response(jsonify({'status': 400, 'message' : 'Invalid data. Please fill all required fields', 'errors': errors.messages}), 400))
+        # Check if data exists
+        if not comment_data:
+            return {'status': 400, 'message': 'No data provided'}, 400
 
-    # Save question and return response
-    data['user_id'] = get_jwt_identity()
-    data['question_id'] = question_id
-    comment = db.save(data)
-    result = CommentSchema().dump(comment)
-    return jsonify({'status': 201, 'message': 'Comment posted successfully', 'data': result}), 201
+        # Check if request is valid
+        try:
+            data = CommentSchema().load(comment_data)
+        except ValidationError as errors:
+            return {'status': 400, 'message' : 'Invalid data. Please fill all required fields', 'errors': errors.messages}, 400
 
-@v1.route('/questions/<int:question_id>/comments', methods=['GET'])
-def fetch_all_comments(question_id):
-    """ Endpoint to fetch all comments for a question """
+        # Save question and return response
+        data['user_id'] = get_jwt_identity()
+        data['question_id'] = question_id
+        comment = db.save(data)
+        result = CommentSchema().dump(comment)
+        return {'status': 201, 'message': 'Comment posted successfully', 'data': result}, 201
 
-    # Check if question exists
-    if not questions_db.exists('id', question_id):
-        abort(make_response(jsonify({'status': 404, 'message': 'Question not found'}), 404))
+    def get(self, question_id):
+        """ Endpoint to fetch all comments for a question """
 
-    # Return list of comments
-    comments = db.all()
-    result = CommentSchema(many=True).dump(comments)
-    return jsonify({'status': 200, 'data': result}), 200
+        # Check if question exists
+        if not questions_db.exists('id', question_id):
+            return {'status': 404, 'message': 'Question not found'}, 404
+
+        # Return list of comments
+        comments = db.all()
+        result = CommentSchema(many=True).dump(comments)
+        return {'status': 200, 'data': result}, 200
