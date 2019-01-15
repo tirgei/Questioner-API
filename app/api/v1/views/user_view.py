@@ -21,34 +21,52 @@ class Register(Resource):
     def post(self):
         """ Endpoint to register user """
 
+        message = ''
+        status_code = 200
+        response = {}
+
         register_data = request.get_json()
 
         if not register_data:
-            return {'status': 400, 'message': 'No data provided'}, 400
+            message = 'No data provided'
+            status_code = 400
 
-        try:
-            data = UserSchema().load(register_data)
-        except ValidationError as errors:
-            return {'status': 400, 'message' : 'Invalid data. Please fill all required fields', 'errors': errors.messages}, 400
+        else:
+            try:
+                data = UserSchema().load(register_data)
 
-        if next(filter(lambda u: u['username'] == data['username'], db.all()), None):
-            return {'status': 409, 'message' : 'Username already exists'}, 409
+                if next(filter(lambda u: u['username'] == data['username'], db.all()), None):
+                    status_code =  409
+                    message = 'Username already exists'
 
-        if db.exists('email', data['email']):
-            return {'status': 409, 'message' : 'Email already exists'}, 409
+                elif db.exists('email', data['email']):
+                    status_code =  409
+                    message = 'Email already exists'
 
-        new_user = db.save(data)
-        result = UserSchema(exclude=['password']).dump(new_user)
+                else:
+                    new_user = db.save(data)
+                    result = UserSchema(exclude=['password']).dump(new_user)
 
-        access_token = create_access_token(identity=new_user['id'], fresh=True)
-        refresh_token = create_refresh_token(identity=new_user['id'])
-        return {
-            'status': 201,
-            'message' : 'User created successfully',
-            'data': result,
-            'access_token' : access_token,
-            'refresh_token' : refresh_token
-        }, 201
+                    access_token = create_access_token(identity=new_user['id'], fresh=True)
+                    refresh_token = create_refresh_token(identity=new_user['id'])
+
+                    status_code = 201
+                    message = 'User created successfully'
+                    response.update({
+                        'data': result,
+                        'access_token' : access_token,
+                        'refresh_token' : refresh_token
+                    })
+
+            except ValidationError as err:
+                errors = err.messages
+
+                status_code = 400
+                message = 'Invalid data. Please fill all required fields'
+                response.update({'errors': errors})
+
+        response.update({'status': status_code, 'message': message})
+        return response, status_code
 
 class Login(Resource):
     """ Resource to login existing user """
@@ -56,38 +74,57 @@ class Login(Resource):
     def post(self):
         """ Endpoint to login user """
 
+        message = ''
+        status_code = 200
+        response = {}
+
         login_data = request.get_json()
 
         if not login_data:
-            return {'status': 400, 'message': 'No data provided'}, 400
+            message = 'No data provided'
+            status_code = 400
 
-        try:
-            data = UserSchema().load(login_data, partial=True)
-        except ValidationError as errors:
-            return {'status': 400, 'message': 'Invalid data. Please fill all required fields', 'errors': errors.messages}, 400
+        else:
+            try:
+                data = UserSchema().load(login_data, partial=True)
 
-        try:
-            username = data['username']
-            password = data['password']
-        except:
-            return {'status': 400, 'message': 'Invalid credentials'}, 400
+                try:
+                    username = data['username']
+                    password = data['password']
 
-        if not db.exists('username', username):
-            return {'status': 404, 'message' : 'User not found'}, 404
+                    if not db.exists('username', username):
+                        status_code = 404
+                        message = 'User not found'
 
-        user = db.find('username', username)
+                    else:
+                        user = db.find('username', username)
 
-        db.checkpassword(user['password'], password)
+                        db.checkpassword(user['password'], password)
 
-        access_token = create_access_token(identity=user['id'], fresh=True)
-        refresh_token = create_refresh_token(identity=True)
-        return {
-            'status': 200,
-            'message': 'User logged in successfully',
-            'access_token': access_token,
-            'refresh_token': refresh_token,
-            'user_id': user['id']
-        }, 200
+                        access_token = create_access_token(identity=user['id'], fresh=True)
+                        refresh_token = create_refresh_token(identity=True)
+
+                        status_code = 200
+                        message = 'User logged in successfully'
+                        response.update({
+                            'access_token': access_token,
+                            'refresh_token': refresh_token,
+                            'user_id': user['id']
+                        })
+                    
+                except:
+                    status_code = 400
+                    message = 'Invalid credentials'
+
+            except ValidationError as err:
+                errors = err.messages
+
+                status_code = 400
+                message = 'Invalid data. Please fill all required fields'
+                response.update({'errors': errors})
+
+        response.update({'status': status_code, 'message': message})
+        return response, status_code
 
 class RefreshToken(Resource):
     """ Resource to refresh access token """
