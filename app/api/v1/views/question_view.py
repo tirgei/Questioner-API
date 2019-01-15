@@ -16,27 +16,49 @@ class Question(Resource):
     def post(self):
         """ Endpoint to post question """
 
+        message = ''
+        status_code = 200
+        response = {}
+
         meetup_data = request.get_json()
 
         if not meetup_data:
-            return {'status': 400, 'message': 'No data provided'}, 400
+            message = 'No data provided'
+            status_code = 400
 
-        try:
-            meetup = meetup_data['meetup_id']
-            if not meetups_db.exists('id', meetup):
-                return {'status': 404, 'message': 'Meetup not found'}, 404
-        except:
-            return {'status': 404, 'message': 'Meetup not found'}, 404
+        else:
+            try:
+                meetup = meetup_data['meetup_id']
+                
+                if not meetups_db.exists('id', meetup):
+                    message = 'Meetup not found'
+                    status_code = 404
 
-        try:
-            data = QuestionSchema().load(meetup_data)
-        except ValidationError as errors:
-            return {'status': 400, 'message' : 'Invalid data. Please fill all required fields', 'errors': errors.messages}, 400
+                else:
+                    try:
+                        data = QuestionSchema().load(meetup_data)
 
-        data['user_id'] = get_jwt_identity()
-        question = db.save(data)
-        result = QuestionSchema().dump(question)
-        return {'status': 201, 'message': 'Question posted successfully', 'data': result}, 201
+                        data['user_id'] = get_jwt_identity()
+                        question = db.save(data)
+                        result = QuestionSchema().dump(question)
+
+                        status_code = 201
+                        message = 'Question posted successfully'
+                        response.update({'data': result})
+
+                    except ValidationError as err:
+                        errors = err.messages
+
+                        status_code = 400
+                        message = 'Invalid data. Please fill all required fields'
+                        response.update({'errors': errors})
+
+            except:
+                message = 'Meetup not found'
+                status_code = 404
+
+        response.update({'status': status_code, 'message': message})
+        return response, status_code
 
 class QuestionUpvote(Resource):
     """ Resource for upvoting question """
@@ -44,12 +66,24 @@ class QuestionUpvote(Resource):
     def patch(self, question_id):
         """ Endpoint to upvote question """
 
-        if not db.exists('id', question_id):
-            return {'status': 404, 'message': 'Question not found'}, 404
+        message = ''
+        status_code = 200
+        response = {}
 
-        question = db.upvote(question_id)
-        result = QuestionSchema().dump(question)
-        return {'status': 200, 'message': 'Question upvoted successfully', 'data': result}, 200
+        if not db.exists('id', question_id):
+            message = 'Question not found'
+            status_code = 404
+
+        else:
+            question = db.upvote(question_id)
+            result = QuestionSchema().dump(question)
+
+            message = 'Question upvoted successfully'
+            status_code = 200
+            response.update({'data': result})
+
+        response.update({'status': status_code, 'message': message})
+        return response, status_code
 
 class QuestionDownvote(Resource):
     """ Resource for downvoting question """
@@ -57,12 +91,24 @@ class QuestionDownvote(Resource):
     def patch(self, question_id):
         """ Endpoint to downvote question """
 
-        if not db.exists('id', question_id):
-            return {'status': 404, 'message': 'Question not found'}, 404
+        message = ''
+        status_code = 200
+        response = {}
 
-        question = db.downvote(question_id)
-        result = QuestionSchema().dump(question)
-        return {'status': 200, 'message': 'Question downvoted successfully', 'data': result}, 200
+        if not db.exists('id', question_id):
+            message = 'Question not found'
+            status_code = 404
+
+        else:
+            question = db.downvote(question_id)
+            result = QuestionSchema().dump(question)
+
+            message = 'Question downvoted successfully'
+            status_code = 200
+            response.update({'data': result})
+
+        response.update({'status': status_code, 'message': message})
+        return response, status_code
 
 
 class QuestionList(Resource):
@@ -71,9 +117,17 @@ class QuestionList(Resource):
     def get(self, meetup_id):
         """ Endpoint to fetch all questions for a specific meetup """
 
-        if not meetups_db.exists('id', meetup_id):
-            return {'status': 404, 'message': 'Meetup not found'}, 404
+        status_code = 200
+        response = {}
 
-        questions = db.all()
-        result = QuestionSchema(many=True).dump(questions)
-        return {'status': 200, 'data': result}, 200
+        if not meetups_db.exists('id', meetup_id):
+            status_code = 404
+            response.update({'message': 'Meetup not found'})
+
+        else:
+            questions = db.all()
+            result = QuestionSchema(many=True).dump(questions)
+            response.update({'data': result})
+
+        response.update({'status': status_code})
+        return response, status_code

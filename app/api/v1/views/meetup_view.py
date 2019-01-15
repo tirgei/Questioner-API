@@ -14,20 +14,36 @@ class Meetups(Resource):
     def post(self):
         """ Endpoint to create meetup """
 
+        message = ''
+        status_code = 200
+        response = {}
+
         json_data = request.get_json()
 
         if not json_data:
-            return {'status': 400, 'message': 'No data provided'}, 400
+            message = 'No data provided'
+            status_code = 400
 
-        try:
-            data = MeetupSchema().load(json_data)
-        except ValidationError as errors:
-            return {'status': 400, 'message' : 'Invalid data. Please fill all required fields', 'errors': errors.messages}, 400
+        else:
+            try:
+                data = MeetupSchema().load(json_data)
 
-        data['user_id'] = get_jwt_identity()
-        new_meetup = db.save(data)
-        result = MeetupSchema().dump(new_meetup)
-        return {'status': 201, 'message': 'Meetup created successfully', 'data': [result]}, 201
+                data['user_id'] = get_jwt_identity()
+                new_meetup = db.save(data)
+                result = MeetupSchema().dump(new_meetup)
+
+                status_code = 201
+                message = 'Meetup created successfully'
+
+            except ValidationError as err:
+                errors = err.messages
+
+                status_code = 400
+                message = 'Invalid data. Please fill all required fields'
+                response.update({'errors': errors})
+
+        response.update({'status': status_code, 'message': message})
+        return response, status_code
 
     def get(self):
         """ Endpoint to fetch all meetups """
@@ -42,22 +58,43 @@ class Meetup(Resource):
     def get(self, meetup_id):
         """ Endpoint to fetch specific meetup """
 
-        if not db.exists('id', meetup_id):
-            return {'status': 404, 'message': 'Meetup not found'}, 404
+        status_code = 200
+        response = {}
 
-        meetup = db.find('id', meetup_id)
-        result = MeetupSchema().dump(meetup)
-        return {'status':200, 'data':result}, 200
+        if not db.exists('id', meetup_id):
+            status_code = 404
+            response.update({'message': 'Meetup not found'})
+
+        else:
+            meetup = db.find('id', meetup_id)
+            result = MeetupSchema().dump(meetup)
+
+            status_code = 200
+            response.update({'data': result})
+
+        response.update({'status': status_code})
+        return response, status_code
 
     @jwt_required
     def delete(self, meetup_id):
         """ Endpoint to delete meetup """
 
-        if not db.exists('id', meetup_id):
-            return {'status': 404, 'message': 'Meetup not found'}, 404
+        message = ''
+        status_code = 200
+        response = {}
 
-        db.delete(meetup_id)
-        return {'status':200, 'message': 'Meetup deleted successfully'}, 200
+        if not db.exists('id', meetup_id):
+            status_code = 404
+            message = 'Meetup not found'
+
+        else:
+            db.delete(meetup_id)
+
+            status_code = 200
+            message = 'Meetup deleted successfully'
+
+        response.update({'status': status_code, 'message': message})
+        return response, status_code
 
 class MeetupsUpcoming(Resource):
     """ Resource for upcoming meetups """
@@ -75,22 +112,35 @@ class MeetupRsvp(Resource):
     @jwt_required
     def post(self, meetup_id, rsvp):
         """ Endpoint to RSVP to meetup """
+
+        message = ''
+        status_code = 200
+        response = {}
+
         valid_responses = ('yes', 'no', 'maybe')
 
         if not db.exists('id', meetup_id):
-            return {'status': 404, 'message': 'Meetup not found'}, 404
+            print('Meetup not found')
+            status_code = 404
+            message = 'Meetup not found'
 
-        if rsvp not in valid_responses:
-            return {'status': 400, 'message': 'Invalid rsvp'}, 400
+        elif rsvp not in valid_responses:
+            status_code = 400
+            message = 'Invalid rsvp'
 
-        meetup = db.find('id', meetup_id)
-        return {
-            'status': 200,
-            'message': 'Meetup rsvp successfully',
-            'data': {
-                'user_id': get_jwt_identity(),
-                'meetup_id': meetup['id'],
-                'topic' : meetup['topic'],
-                'status': rsvp
-            }
-        }, 200
+        else:
+            meetup = db.find('id', meetup_id)
+
+            status_code = 200
+            message = 'Meetup rsvp successfully'
+            response.update({
+                'data': {
+                    'user_id': get_jwt_identity(),
+                    'meetup_id': meetup['id'],
+                    'topic' : meetup['topic'],
+                    'status': rsvp
+                }
+            })
+
+        response.update({'status': status_code, 'message': message})
+        return response, status_code

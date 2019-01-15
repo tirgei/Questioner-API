@@ -39,10 +39,4 @@ def create_app(config_name):
 
         return jsonify({'status': 405, 'message': 'Method not allowed'}), 405
 
-    @app.errorhandler(Exception)
-    def unhandled_exception(error):
-        """ Handler for other error codes """
-
-        return jsonify({'status': 500, 'message': 'Could not complete your request'}), 500
-
     return app
